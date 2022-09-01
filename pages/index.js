@@ -11,7 +11,6 @@ const defaultOption = options[0];
 
 export default function Home() {
 	const [usdAmount, setUsdAmount] = useState("");
-	const [yltAmount, setYltAmount] = useState(0);
 	const [walletAddress, setWalletAddress] = useState("");
 	const [email, setEmail] = useState("");
 	const [rate, setRate] = useState(rates[0]);
@@ -21,6 +20,8 @@ export default function Home() {
 		const randomIndex = Math.floor(Math.random() * rates.length);
 		const item = rates[randomIndex];
 		setRate(item);
+		setUsdAmount("");
+		setYlt(0);
 	};
 
 	return (
@@ -61,7 +62,10 @@ export default function Home() {
 					type="number"
 					placeholder="YLT Token Amount"
 					value={ylt}
-					onChange={(e) => setYltAmount(e.target.value)}
+					onChange={(e) => {
+						setYlt(e.target.value);
+						setUsdAmount(e.target.value / rate.ylt);
+					}}
 					token={true}
 				/>
 				<Input
