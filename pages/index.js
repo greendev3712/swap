@@ -1,18 +1,27 @@
 import { Scrolling } from "../components/Scrolling";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "../components/Input";
+import { rates } from "../utils/helperFunction";
 
 const options = ["USD", "USDT"];
 
 const defaultOption = options[0];
 
 export default function Home() {
-	const [cryptoAmount, setCryptoAmount] = useState("");
-	const [yltAmount, setYltAmount] = useState("");
+	const [usdAmount, setUsdAmount] = useState("");
+	const [yltAmount, setYltAmount] = useState(0);
 	const [walletAddress, setWalletAddress] = useState("");
 	const [email, setEmail] = useState("");
+	const [rate, setRate] = useState(rates[0]);
+	const [ylt, setYlt] = useState(0);
+
+	const changeRate = () => {
+		const randomIndex = Math.floor(Math.random() * rates.length);
+		const item = rates[randomIndex];
+		setRate(item);
+	};
 
 	return (
 		// Layout
@@ -24,17 +33,22 @@ export default function Home() {
 			<div className="w-[40%] h-[55%] bg-white relative flex flex-col border-2 border-[#90e040] rounded-2xl pt-4">
 				<button
 					type="button"
-					className="w-[30%] h-4 bg-transparent self-end mb-4"
+					className="w-[40%] h-4 bg-transparent self-end mb-4"
+					onClick={changeRate}
 				>
-					update course <span className="text-blue-500">&#8635;</span>
+					{rate.rate} - update rate{" "}
+					<span className="text-blue-500">&#8635;</span>
 				</button>
 				{/* Inner Container */}
 				<div className="w-[98%] relative mx-auto">
 					<Input
 						type="number"
 						placeholder="Enter amount"
-						value={cryptoAmount}
-						onChange={(e) => setCryptoAmount(e.target.value)}
+						value={usdAmount}
+						onChange={(e) => {
+							setUsdAmount(e.target.value);
+							setYlt(e.target.value * rate.ylt);
+						}}
 						amount={true}
 					/>
 				</div>
@@ -46,7 +60,7 @@ export default function Home() {
 				<Input
 					type="number"
 					placeholder="YLT Token Amount"
-					value={yltAmount}
+					value={ylt}
 					onChange={(e) => setYltAmount(e.target.value)}
 					token={true}
 				/>
