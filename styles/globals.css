@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.Dropdown-root {
+	width: 15%;
+	right: 0;
+}
+
+.logoContainer {
+	clip-path: polygon(0 0, 100% 0%, 79% 100%, 0% 100%);
+}
+
+.dropdown {
+	position: absolute !important;
+	right: 0.5rem;
+	top: 15%;
+}
+
+.Dropdown-control {
+	background-color: #90e040;
+	border-radius: 20px;
+}

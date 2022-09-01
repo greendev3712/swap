@@ -4,6 +4,7 @@ import "react-dropdown/style.css";
 import { useEffect, useState } from "react";
 import { Input } from "../components/Input";
 import { rates } from "../utils/helperFunction";
+import Navbar from "../components/Navbar";
 
 const options = ["USD", "USDT"];
 
@@ -26,7 +27,8 @@ export default function Home() {
 
 	return (
 		// Layout
-		<div className="bg-[#f6f6f7] h-[100vh] max-w-[1440px] relative overflow-x-hidden mx-auto flex justify-center items-center">
+		<div className="bg-[#f6f6f7] h-[100vh] w-full max-w-[1440px] relative overflow-x-hidden mx-auto flex justify-center items-center">
+			<Navbar />
 			{/* Main Container */}
 			<Scrolling />
 
@@ -42,6 +44,13 @@ export default function Home() {
 				</button>
 				{/* Inner Container */}
 				<div className="w-[98%] relative mx-auto">
+					<Dropdown
+						options={options}
+						defaultOption={defaultOption}
+						className="dropdown"
+						placeholder={defaultOption}
+						menuClassName="dropdown-menu"
+					/>
 					<Input
 						type="number"
 						placeholder="Enter amount"
