@@ -78,7 +78,7 @@ export default function Home() {
 					token={true}
 				/>
 				<Input
-					type="number"
+					type="text"
 					placeholder="Enter your crypto wallet address"
 					value={walletAddress}
 					onChange={(e) => setWalletAddress(e.target.value)}

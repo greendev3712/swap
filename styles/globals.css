@@ -18,6 +18,11 @@
 }
 
 .Dropdown-control {
-	background-color: #90e040;
-	border-radius: 20px;
+	background-color: #90e040 !important;
+	border-radius: 20px !important;
+}
+
+.dropdown-menu {
+	background-color: #90e040 !important;
+	border-radius: 20px !important;
 }
