@@ -26,3 +26,9 @@
 	background-color: #90e040 !important;
 	border-radius: 20px !important;
 }
+
+@layer components {
+	.form-input {
+		@apply w-[98%] h-[3rem] rounded-2xl bg-[#f6f6f7] text-2xl font-bold text-[#242424] mx-auto text-left p-8 pl-4 mb-2 outline-none;
+	}
+}

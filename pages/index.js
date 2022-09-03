@@ -2,6 +2,7 @@ import { Scrolling } from "../components/Scrolling";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 import { useEffect, useState } from "react";
+import WAValidator, { validate } from "multicoin-address-validator";
 import { Input } from "../components/Input";
 import { rates } from "../utils/helperFunction";
 import Navbar from "../components/Navbar";
@@ -13,6 +14,7 @@ const defaultOption = options[0];
 export default function Home() {
 	const [usdAmount, setUsdAmount] = useState("");
 	const [walletAddress, setWalletAddress] = useState("");
+	const [validWalletAddress, setValidWalletAddress] = useState("");
 	const [email, setEmail] = useState("");
 	const [rate, setRate] = useState(rates[0]);
 	const [ylt, setYlt] = useState(0);
@@ -23,6 +25,16 @@ export default function Home() {
 		setRate(item);
 		setUsdAmount("");
 		setYlt(0);
+	};
+
+	const validateWalletAddress = (e) => {
+		setWalletAddress(e.target.value);
+
+		const valid = WAValidator.validate(e.target.value, "BNB");
+
+		if (valid) {
+			setValidWalletAddress(e.target.value);
+		}
 	};
 
 	return (
@@ -51,7 +63,7 @@ export default function Home() {
 						placeholder={defaultOption}
 						menuClassName="dropdown-menu"
 					/>
-					<Input
+					<input
 						type="number"
 						placeholder="Enter amount"
 						value={usdAmount}
@@ -59,15 +71,15 @@ export default function Home() {
 							setUsdAmount(e.target.value);
 							setYlt(e.target.value * rate.ylt);
 						}}
-						amount={true}
+						className="form-input"
 					/>
 				</div>
 				{/* Swap Icon */}
-				<p className="w-12 h-12 text-[#90e040] bg-[#f6f6f7] text-center  rounded-full absolute left-[47%] top-[19%] mx-auto cursor-pointer flex justify-center items-center pointer-events-none">
+				<p className="w-12 h-12 text-[#90e040] bg-[#f6f6f7] text-center  rounded-full absolute left-[47%] top-[17%] mx-auto cursor-pointer flex justify-center items-center pointer-events-none">
 					&#8645;
 				</p>
 				{/* Rest Inputs */}
-				<Input
+				<input
 					type="number"
 					placeholder="YLT Token Amount"
 					value={ylt}
@@ -75,25 +87,29 @@ export default function Home() {
 						setYlt(e.target.value);
 						setUsdAmount(e.target.value / rate.ylt);
 					}}
-					token={true}
+					className="form-input mt-2 mb-10"
 				/>
-				<Input
+				<input
 					type="text"
 					placeholder="Enter your crypto wallet address"
 					value={walletAddress}
-					onChange={(e) => setWalletAddress(e.target.value)}
-					wallet={true}
+					onChange={(e) => validateWalletAddress(e)}
+					className={`form-input mt-10 font-normal text-lg ${
+						validWalletAddress
+							? "border-2 border-green-500"
+							: "border-2 border-red-500"
+					}`}
 				/>
-				<Input
+				<input
 					type="email"
 					placeholder="Enter your email address"
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
-					wallet={true}
+					className="form-input text-lg font-normal"
 				/>
 				<button
 					type="submit"
-					className="w-[98%] h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-10"
+					className="w-[98%] h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-20"
 				>
 					swap
 				</button>
