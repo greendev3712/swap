@@ -89,12 +89,19 @@ export default function Home() {
 					}}
 					className="form-input mt-2 mb-10"
 				/>
+				<label
+					htmlFor="walletAddress"
+					className="mt-5 w-[97%] mx-auto text-gray-500 text-xs"
+				>
+					Your wallet must be BEP-20 compatible
+				</label>
 				<input
+					id="walletAddress"
 					type="text"
 					placeholder="Enter your crypto wallet address"
 					value={walletAddress}
 					onChange={(e) => validateWalletAddress(e)}
-					className={`form-input mt-10 font-normal text-lg ${
+					className={`form-input font-normal text-lg ${
 						validWalletAddress
 							? "border-2 border-green-500"
 							: "border-2 border-red-500"
