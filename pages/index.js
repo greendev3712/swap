@@ -6,6 +6,7 @@ import WAValidator, { validate } from "multicoin-address-validator";
 import { Input } from "../components/Input";
 import { rates } from "../utils/helperFunction";
 import Navbar from "../components/Navbar";
+import Router from "next/router";
 
 const options = ["USD", "USDT"];
 
@@ -36,6 +37,33 @@ export default function Home() {
 			setValidWalletAddress(e.target.value);
 		}
 	};
+
+	// stripe payment initiator
+	const stripePaymentInit = (e) => {
+
+		console.log("initiated", process.env.NEXT_PUBLIC_SERVER_URL);
+		fetch(`/api/create-checkout-session`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				quantity: usdAmount
+			})
+		}).then(async res => {
+			console.log(res);
+			if (res.ok) return res.json()
+			const json = await res.json();
+			return await Promise.reject(json);
+		})
+			.then(({ url }) => {
+				console.log(url);
+				window.location = url
+			})
+			.catch(e => {
+				console.error(e.error)
+			})
+	}
 
 	return (
 		// Layout
@@ -101,11 +129,10 @@ export default function Home() {
 					placeholder="Enter your crypto wallet address"
 					value={walletAddress}
 					onChange={(e) => validateWalletAddress(e)}
-					className={`form-input font-normal text-lg ${
-						validWalletAddress
+					className={`form-input font-normal text-lg ${validWalletAddress
 							? "border-2 border-green-500"
 							: "border-2 border-red-500"
-					}`}
+						}`}
 				/>
 				<input
 					type="email"
@@ -114,6 +141,13 @@ export default function Home() {
 					onChange={(e) => setEmail(e.target.value)}
 					className="form-input text-lg font-normal"
 				/>
+				<button
+					onClick={stripePaymentInit}
+					type="submit"
+					className="w-[98%] h-16 rounded-3xl bg-[#546ADA] border-none text-4xl text-white uppercase mx-auto mt-20"
+				>
+					Stripe
+				</button>
 				<button
 					type="submit"
 					className="w-[98%] h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-20"
