@@ -6,6 +6,8 @@ import WAValidator, { validate } from "multicoin-address-validator";
 import { Input } from "../components/Input";
 import { rates } from "../utils/helperFunction";
 import Navbar from "../components/Navbar";
+import { useRouter } from "next/router";
+import { useMoralis } from "react-moralis";
 
 const options = ["USD", "USDT"];
 
@@ -18,6 +20,9 @@ export default function Home() {
 	const [email, setEmail] = useState("");
 	const [rate, setRate] = useState(rates[0]);
 	const [ylt, setYlt] = useState(0);
+	const { user } = useMoralis();
+
+	console.log("user", user);
 
 	const changeRate = () => {
 		const randomIndex = Math.floor(Math.random() * rates.length);
@@ -102,7 +107,7 @@ export default function Home() {
 					value={walletAddress}
 					onChange={(e) => validateWalletAddress(e)}
 					className={`form-input font-normal text-lg ${
-						validWalletAddress
+						validWalletAddress.length > 0
 							? "border-2 border-green-500"
 							: "border-2 border-red-500"
 					}`}

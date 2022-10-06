@@ -4,7 +4,7 @@ export const Scrolling = () => {
 	return (
 		<Marquee
 			direction="right"
-			speed={50}
+			speed={5}
 			gradient={false}
 			style={{
 				position: "absolute",
@@ -15,22 +15,46 @@ export const Scrolling = () => {
 			}}
 		>
 			<div className="flex justify-between items-center flex-col w-full h-full -rotate-12">
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
 			</div>
 			<div className="flex justify-between items-center flex-col w-full h-full -rotate-12">
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
 			</div>
 			<div className="flex justify-between items-center flex-col w-full h-full -rotate-12">
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl">swap</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
+				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
+					swap
+				</p>
 			</div>
 		</Marquee>
 	);
