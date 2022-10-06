@@ -16,14 +16,8 @@ const Navbar = () => {
 	return (
 		<div className="w-[98%] rounded-3xl h-20 bg-[#f6f6f7] text-center flex justify-center items-center absolute top-5 z-10 shadow-[1px_1px_17px_1px]">
 			{/* logo container */}
-			<div className="bg-[#242424] w-[10%] h-full rounded-xl flex justify-center items-center absolute left-0 logoContainer">
-				<Image
-					src={Logo}
-					alt="logo"
-					height="90%"
-					width="100%"
-					objectFit="contain"
-				/>
+			<div className="bg-[#242424] w-[8%] h-full rounded-xl flex justify-items-center items-center absolute left-0 logoContainer">
+				<Image src={Logo} alt="logo" width="90%" objectFit="contain" />
 				{/* <p className="uppercase text-xl text-white font-bold mr-10">ylg</p> */}
 			</div>
 
@@ -32,7 +26,7 @@ const Navbar = () => {
 				{headerItems.map((item) => {
 					return (
 						<Link href={`${item.url}`} key={item.id}>
-							<a className="text-lg text-[#242424] underline underline-offset-8 underline-color decoration-[#90E040]">
+							<a className="text-md text-[#242424] underline underline-offset-8 underline-color decoration-[#90E040]">
 								{item.title}
 							</a>
 						</Link>
