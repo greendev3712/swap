@@ -22,8 +22,6 @@ export default function Home() {
 	const [ylt, setYlt] = useState(0);
 	const { user } = useMoralis();
 
-	console.log("user", user);
-
 	const changeRate = () => {
 		const randomIndex = Math.floor(Math.random() * rates.length);
 		const item = rates[randomIndex];
