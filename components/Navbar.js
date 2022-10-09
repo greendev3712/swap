@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMoralis } from "react-moralis";
 import LINKS from "../constants/menu";
+import userDefaultAvatar from '../assets/user.png';
 
 const Navbar = () => {
 	const { authenticate, user } = useMoralis();
@@ -16,7 +17,7 @@ const Navbar = () => {
 	}, []);
 
 	return (
-		<div className="w-full px-3 h-20 text-center flex tems-center z-10">
+		<div className="w-full px-3 h-20 text-center flex shrink-0 items-center z-10">
 			{/* logo container */}
 			<div className="bg-[#242424] mr-[70px] w-[120px] relative h-full rounded-l-xl flex justify-center items-center with-triangle triangle">
 				<Logo className="w-10 h-10" />
@@ -25,7 +26,7 @@ const Navbar = () => {
 			</div>
 
 			{/* Navbar Links */}
-			<div className="h-full w-full pr-4 bg-[#f6f6f7] relative rounded-r-xl flex justify-end items-center white-triangle-reverted with-triangle">
+			<div className="sm:flex hidden h-full w-full pr-4 bg-[#f6f6f7] relative rounded-r-xl justify-end items-center white-triangle-reverted with-triangle">
 				{LINKS.map((link) => (
 					<Link key={link.id} href={link.url}>
 						<a className="text-md text-[#242424] uppercase underline underline-offset-8 underline-color decoration-[#90E040] mr-4">
@@ -43,10 +44,10 @@ const Navbar = () => {
 				) : (
 					<div className="flex items-center justify-center">
 						<Image
-							src={profile_picture}
+							src={profile_picture ?? userDefaultAvatar}
 							width="40px"
 							height="40px"
-							className="rounded-full"
+							className="rounded-full bg-[#90e040]"
 							alt="profile picture"
 						/>
 						<p className="ml-3">
