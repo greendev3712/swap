@@ -1,7 +1,7 @@
 import { Scrolling } from "../components/Scrolling";
 import CurrencyDropdown from "../components/CurrencyDropdown";
 import "react-dropdown/style.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import WAValidator, { validate } from "multicoin-address-validator";
 import { rates } from "../utils/helperFunction";
 import Navbar from "../components/Navbar";
@@ -17,10 +17,10 @@ const currencies = [
 ];
 
 export default function Home() {
+	const validateClassNameRef = useRef('');
 	const [selectedCurrency, setSelectedCurrency] = useState(currencies[0]);
 	const [usdAmount, setUsdAmount] = useState("");
 	const [walletAddress, setWalletAddress] = useState("");
-	const [validWalletAddress, setValidWalletAddress] = useState("");
 	const [email, setEmail] = useState("");
 	const [rate, setRate] = useState(rates[0]);
 	const [ylt, setYlt] = useState(0);
@@ -41,7 +41,9 @@ export default function Home() {
 		const valid = WAValidator.validate(e.target.value, "BNB");
 
 		if (valid) {
-			setValidWalletAddress(e.target.value);
+			validateClassNameRef.current = 'border-2 border-green-500';
+		} else {
+			validateClassNameRef.current = 'border-2 border-red-500';
 		}
 	};
 
@@ -129,9 +131,7 @@ export default function Home() {
 					value={walletAddress}
 					onChange={(e) => validateWalletAddress(e)}
 					className={`form-input font-normal text-lg ${
-						validWalletAddress.length > 0
-							? "border-2 border-green-500"
-							: "border-2 border-red-500"
+						walletAddress.length > 0 ? validateClassNameRef.current : ''
 					}`}
 				/>
 				{!user && (
