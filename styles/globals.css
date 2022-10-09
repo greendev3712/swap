@@ -2,14 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+	font-family: 'IBM Plex Mono', monospace;
+}
+
 .Dropdown-root {
 	width: 15%;
 	right: 0;
 }
 
-.logoContainer {
-	clip-path: polygon(0 0, 100% 0%, 79% 100%, 0% 100%);
+.with-triangle {
+	filter: drop-shadow(0px 8px 24px rgba(0, 0, 0, 0.07));
 }
+
+.triangle::before {
+	content: '';
+	position: absolute;	
+	top: 0;	
+	left: 100%;
+	width: 50px;
+	height: 80px;
+	background-color: #242424;
+	clip-path: path('M 0 0 L 42 0 Q 50 0 46 10 L 14 76 Q 9 82 0 80 L 0 80 L 0 0 Z');
+}
+
+.white-triangle-reverted::before {
+	content: '';
+	position: absolute;	
+	top: 0;	
+	right: 100%;
+	width: 50px;
+	height: 80px;
+	background-color: #f6f6f7;
+	clip-path: path('M 0 0 L 42 0 Q 50 0 46 10 L 14 76 Q 9 82 0 80 L 0 80 L 0 0 Z');
+	transform: rotate(-180deg);
+}
+
 
 .dropdown {
 	position: absolute !important;
@@ -29,6 +57,19 @@
 
 @layer components {
 	.form-input {
-		@apply w-[98%] h-[3rem] rounded-2xl bg-[#f6f6f7] text-2xl font-bold text-[#242424] mx-auto text-left p-8 pl-4 mb-2 outline-none;
+		@apply w-full h-[3rem] rounded-2xl bg-[#f6f6f7] text-2xl font-bold text-[#242424] mx-auto text-left p-8 pl-4 mb-2 outline-none;
+		/* Hide default elements */
+		-webkit-appearance: none;
+		-moz-appearance: textfield;
+	}
+
+	.marquee-wrapper .marquee {
+		flex-direction: column !important;
+	}
+
+	.marquee-text {
+		@apply text-[400px] mr-12 mb-8 drop-shadow-5xl text-transparent font-bold uppercase -translate-y-full;
+		-webkit-text-stroke: 10px rgba(36, 36, 36, 0.7);
+		line-height: 1;
 	}
 }

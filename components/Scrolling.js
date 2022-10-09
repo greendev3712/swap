@@ -12,50 +12,19 @@ export const Scrolling = () => {
 				overflow: "hidden",
 				width: "100%",
 				height: "100%",
+				zIndex: 0
 			}}
+			className="marquee-wrapper"
 		>
-			<div className="flex justify-between items-center flex-col w-full h-full -rotate-12">
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-			</div>
-			<div className="flex justify-between items-center flex-col w-full h-full -rotate-12">
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-			</div>
-			<div className="flex justify-between items-center flex-col w-full h-full -rotate-12">
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-				<p className="text-[9rem] mr-[2rem] drop-shadow-5xl text-gray-200">
-					swap
-				</p>
-			</div>
+			{Array.from({ length: 8 }).map((_, index) => (
+				<div key={`container-${index}`} className="flex justify-between items-center w-full h-full -rotate-12">
+					{Array.from({ length: 4 }).map((_, index) => (
+						<p key={`text-${index}`} className="marquee-text">
+							swap
+						</p>
+					))}
+				</div>
+			))}
 		</Marquee>
 	);
 };

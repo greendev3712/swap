@@ -1,18 +1,9 @@
 import React, { useEffect } from "react";
-import Logo from "../assets/yourlife_white.png";
+import Logo from "../assets/Logo.svg";
 import Image from "next/image";
 import Link from "next/link";
 import { useMoralis } from "react-moralis";
-
-const headerItems = [
-	{ id: 1, title: "MARKETPLACE", url: "https://nft.yourlifegames.com/" },
-	{
-		id: 2,
-		title: "MY ACCOUNT",
-		url: "https://nft.yourlifegames.com/myaccount",
-	},
-	{ id: 3, title: "AUTHENTICATE" },
-];
+import LINKS from "../constants/menu";
 
 const Navbar = () => {
 	const { authenticate, user } = useMoralis();
@@ -25,25 +16,23 @@ const Navbar = () => {
 	}, []);
 
 	return (
-		<div className="w-[98%] rounded-3xl h-20 bg-[#f6f6f7] text-center flex justify-center items-center absolute top-5 z-10 shadow-[1px_1px_17px_1px]">
+		<div className="w-full px-3 h-20 text-center flex tems-center z-10">
 			{/* logo container */}
-			<div className="bg-[#242424] w-[8%] h-full rounded-xl flex justify-items-center items-center absolute left-0 logoContainer">
-				<Image src={Logo} alt="logo" width="90%" objectFit="contain" />
+			<div className="bg-[#242424] mr-[70px] w-[120px] relative h-full rounded-l-xl flex justify-center items-center with-triangle triangle">
+				<Logo className="w-10 h-10" />
+				{/* <Image src={Logo} alt="logo" width={60} height={60} objectFit="contain" /> */}
 				{/* <p className="uppercase text-xl text-white font-bold mr-10">ylg</p> */}
 			</div>
 
 			{/* Navbar Links */}
-			<div className="w-[40%] flex justify-between items-center">
-				<Link href="https://nft.yourlifegames.com">
-					<a className="text-md text-[#242424] uppercase underline underline-offset-8 underline-color decoration-[#90E040]">
-						marketplace
-					</a>
-				</Link>
-				<Link href="https://nft.yourlifegames.com">
-					<a className="text-md text-[#242424] uppercase underline underline-offset-8 underline-color decoration-[#90E040]">
-						my account
-					</a>
-				</Link>
+			<div className="h-full w-full pr-4 bg-[#f6f6f7] relative rounded-r-xl flex justify-end items-center white-triangle-reverted with-triangle">
+				{LINKS.map((link) => (
+					<Link key={link.id} href={link.url}>
+						<a className="text-md text-[#242424] uppercase underline underline-offset-8 underline-color decoration-[#90E040] mr-4">
+							{link.title}
+						</a>
+					</Link>
+				))}
 				{!user ? (
 					<button
 						className="text-[#242424] text-md uppercase underline underline-offset-8 underline-color decoration-[#90E040]"
