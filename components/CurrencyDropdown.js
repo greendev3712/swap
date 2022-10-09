@@ -1,8 +1,10 @@
 import Image from 'next/image';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Chevron from '../assets/chevron.svg';
+import useOutsideClick from './../hooks/useOutsideClick';
 
 export default function CurrencyDropdown({ options, selected, onChange, className }) {
+    const ref = useRef(null);
     const [open, setOpen] = useState(false);
 
     const handleClick = () => {
@@ -13,8 +15,10 @@ export default function CurrencyDropdown({ options, selected, onChange, classNam
         }
     }
 
+    useOutsideClick(ref, () => setOpen(false));
+
     return (
-        <div className={`rounded-t-3xl bg-[#C3EB9B] py-1.5  w-[134px] ${!open ? 'rounded-b-3xl' : ''} ${className}`}>
+        <div ref={ref} className={`rounded-t-3xl bg-[#C3EB9B] py-1.5  w-[134px] ${!open ? 'rounded-b-3xl' : ''} ${className}`}>
             <button
                 onClick={handleClick}
                 className="flex items-center w-full px-2.5"
