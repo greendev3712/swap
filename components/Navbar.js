@@ -32,7 +32,7 @@ const Navbar = () => {
 				type="button"
 				className="bg-[#3985F5] py-4 px-6 rounded-lg ml-20 text-white uppercase"
 			>
-				subscribe for newsletters
+				authenticate
 			</button>
 
 			{/* User Account */}
