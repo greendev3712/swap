@@ -4,25 +4,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMoralis } from "react-moralis";
 
-const headerItems = [
-	{ id: 1, title: "MARKETPLACE", url: "https://nft.yourlifegames.com/" },
-	{
-		id: 2,
-		title: "MY ACCOUNT",
-		url: "https://nft.yourlifegames.com/myaccount",
-	},
-	{ id: 3, title: "AUTHENTICATE" },
-];
-
 const Navbar = () => {
 	const { authenticate, user } = useMoralis();
 	const address = user?.attributes?.ethAddress;
 	const profile_picture = user?.attributes?.profile_picture;
+
 	useEffect(() => {
 		if (!user) {
 			authenticate();
 		}
-	}, []);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [user]);
 
 	return (
 		<div className="w-[98%] rounded-3xl h-20 bg-[#f6f6f7] text-center flex justify-center items-center absolute top-5 z-10 shadow-[1px_1px_17px_1px]">

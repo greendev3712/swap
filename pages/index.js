@@ -1,12 +1,10 @@
 import { Scrolling } from "../components/Scrolling";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
-import { useEffect, useState } from "react";
-import WAValidator, { validate } from "multicoin-address-validator";
-import { Input } from "../components/Input";
+import { useState } from "react";
+import WAValidator from "multicoin-address-validator";
 import { rates } from "../utils/helperFunction";
 import Navbar from "../components/Navbar";
-import { useRouter } from "next/router";
 import { useMoralis } from "react-moralis";
 
 const options = ["USD", "USDT"];
@@ -20,7 +18,6 @@ export default function Home() {
 	const [email, setEmail] = useState("");
 	const [rate, setRate] = useState(rates[0]);
 	const [ylt, setYlt] = useState(0);
-	const { user } = useMoralis();
 
 	const changeRate = () => {
 		const randomIndex = Math.floor(Math.random() * rates.length);
