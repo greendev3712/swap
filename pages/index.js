@@ -1,15 +1,15 @@
+import { useState, useRef } from "react";
 import { Scrolling } from "../components/Scrolling";
 import CurrencyDropdown from "../components/CurrencyDropdown";
 import "react-dropdown/style.css";
-import { useEffect, useState, useRef } from "react";
-import WAValidator, { validate } from "multicoin-address-validator";
+import WAValidator from "multicoin-address-validator";
 import { rates } from "../utils/helperFunction";
 import Navbar from "../components/Navbar";
 import { useMoralis } from "react-moralis";
 import USDT from '../assets/usdt.png';
 import USD from '../assets/usd.png';
 import Footer from "../components/Footer";
-import Logo from "../assets/Logo.svg"
+import Logo from "../assets/Logoemblem.svg"
 
 const currencies = [
 	{id: 1, title: "USDT", image: USDT},
@@ -69,7 +69,7 @@ export default function Home() {
 			<div className="max-w-screen-sm w-full bg-white relative flex flex-col border-2 border-[#90e040] rounded-2xl pt-3 pb-5 px-2.5">
 				<button
 					type="button"
-					className="w-[40%] h-4 bg-transparent self-end mb-4"
+					className="h-4 bg-transparent self-end mb-4"
 					onClick={changeRate}
 				>
 					{rate.rate} - update rate{" "}
@@ -92,7 +92,7 @@ export default function Home() {
 								setUsdAmount(e.target.value);
 								setYlt(e.target.value * rate.ylt);
 							}}
-							className="form-input h-[100px] text-5xl"
+							className="form-input h-[100px] text-2xl sm:text-5xl"
 						/>
 					</div>
 					{/* Swap Icon */}
@@ -104,7 +104,7 @@ export default function Home() {
 					</button>
 					{/* Rest Inputs */}
 					<div className={`w-full relative ${reverted ? 'order-first' : ''}`}>
-						<Logo className="absolute right-5 h-12 w-12 top-2/4 -translate-y-2/4" />
+						<Logo className="absolute right-5 h-12 w-12 top-2/4 -translate-y-2/4 fill-black" />
 						<input
 							type="number"
 							placeholder="YLT Token Amount"
@@ -113,7 +113,7 @@ export default function Home() {
 								setYlt(e.target.value);
 								setUsdAmount(e.target.value / rate.ylt);
 							}}
-							className="form-input mt-2 w-full h-[100px] text-5xl"
+							className="form-input mt-2 w-full h-[100px] text-2xl sm:text-5xl"
 						/>
 					</div>
 				</div>

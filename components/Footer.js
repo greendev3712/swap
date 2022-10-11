@@ -1,13 +1,13 @@
 import Link from 'next/link';
-import Logo from '../assets/Logo.svg';
+import Logo from '../assets/FullLogo.svg';
 import LINKS from '../constants/menu';
 
 export default function Footer() {
     return (
-        <footer className="px-10 w-full z-10">
-            <div className="w-full h-[140px] flex items-center px-14 bg-[#242424] rounded-[32px]">
+        <footer className="px-4 sm:px-10 w-full z-10">
+            <div className="w-full h-[140px] flex items-center px-5 sm:px-14 bg-[#242424] rounded-[32px]">
                 <div className="flex-grow">
-                    <Logo className="h-16 w-16" />
+                    <Logo className="h-16" />
                 </div>
                 <div>
                     {LINKS.map((link) => (
@@ -19,7 +19,7 @@ export default function Footer() {
                     ))}
                 </div>
             </div>
-            <p className="uppercase text-[#646464] ml-14">Yourlife. 2022</p>
+            <p className="uppercase text-[#646464] ml-5 sm:ml-14">Yourlife. 2022</p>
         </footer>
     )
 }
