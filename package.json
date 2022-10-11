@@ -9,7 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ethersproject/address": "^5.7.0",
+    "@ethersproject/contracts": "^5.7.0",
+    "@ethersproject/providers": "^5.7.1",
+    "@ethersproject/solidity": "^5.7.0",
+    "ethers": "^5.7.1",
     "next": "12.2.5",
+    "pancakeswap-v2-testnet-sdk": "^2.4.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
