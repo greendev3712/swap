@@ -40,31 +40,24 @@ export default function Home() {
 		const deadline = Math.floor(Date.now()/ 1000) + (60 * 20)
 		const value = trade.inputAmount.raw
 
-		let signer = new ethers.Wallet('0e38515f12388db8d5c7490d5fe659b57e3df2315086f11b416bff6a48312d52')
-		const account = signer.connect(provider)
+	
+		// need to sign the contract 
 		let metaSigner = provider.getSigner()
 		console.log(signer, "--signer", metaSigner, "--metaSigner", account, "--account", metaAccount, "--metaAccount")
 
+		// contract and its abi 
 		const pancakeswap = new ethers.Contract('0xCc7aDc94F3D80127849D2b41b6439b7CF1eB4Ae0', ['function swapExactTokensForTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external returns (uint[] memory amounts)'], account)
-		
-		console.log(pancakeswap)
+
+		// transaction to carry
 		// const tx = await pancakeswap.swapExactTokensForTokens(amountIn,amountOutMin[1], path,to, deadline, { value, gasPrice: 20e9 })
 		// console.log(tx, tx.hash);
 
-
-		console.log(wallprovider.getSigner(), provider.getSigner());
-		// console.log(window.ethereum);
 		// MetaMask requires requesting permission to connect users accounts
-		await wallprovider.send("eth_requestAccounts", []);
-		
+
 		// The MetaMask plugin also allows signing transactions to
 		// send ether and pay to change state within the blockchain.
 		// For this, you need the account signer...
-		// const signer = new ethers.Wallet()
-		// const signer = provider.getSigner()
-		// console.log(signer, "signer");
-		// const account = signer.connect(provider)
-		// console.log(account);
+
 
 	}
 	const changeRate = () => {
