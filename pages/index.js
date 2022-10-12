@@ -5,7 +5,6 @@ import { useState } from "react";
 import WAValidator from "multicoin-address-validator";
 import { rates } from "../utils/helperFunction";
 import Navbar from "../components/Navbar";
-import { useMoralis } from "react-moralis";
 
 const options = ["USD", "USDT"];
 
