@@ -59,6 +59,14 @@ const Navbar = () => {
 				)}
 			</div>
 
+			{/* Subscribe button */}
+			<button
+				type="button"
+				className="bg-[#3985F5] py-4 px-6 rounded-lg ml-20 text-white uppercase"
+			>
+				authenticate
+			</button>
+
 			{/* User Account */}
 			<div></div>
 		</div>

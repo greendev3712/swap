@@ -15,6 +15,7 @@ import {
 	Percent,
 } from "pancakeswap-v2-testnet-sdk";
 import { ethers } from "ethers";
+import Router from "next/router";
 
 const options = ["USD", "USDT"];
 
@@ -112,6 +113,33 @@ export default function Home() {
 		}
 	};
 
+	// stripe payment initiator
+	const stripePaymentInit = (e) => {
+		console.log("initiated", process.env.NEXT_PUBLIC_SERVER_URL);
+		fetch(`/api/create-checkout-session`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				quantity: usdAmount,
+			}),
+		})
+			.then(async (res) => {
+				console.log(res);
+				if (res.ok) return res.json();
+				const json = await res.json();
+				return await Promise.reject(json);
+			})
+			.then(({ url }) => {
+				console.log(url);
+				window.location = url;
+			})
+			.catch((e) => {
+				console.error(e.error);
+			});
+	};
+
 	return (
 		// Layout
 		<div className="bg-[#f6f6f7] h-[100vh] w-full max-w-[1440px] relative overflow-x-hidden mx-auto flex justify-center items-center">
@@ -177,7 +205,7 @@ export default function Home() {
 					value={walletAddress}
 					onChange={(e) => validateWalletAddress(e)}
 					className={`form-input font-normal text-lg ${
-						validWalletAddress.length > 0
+						validWalletAddress
 							? "border-2 border-green-500"
 							: "border-2 border-red-500"
 					}`}
@@ -190,7 +218,13 @@ export default function Home() {
 					className="form-input text-lg font-normal"
 				/>
 				<button
-					onClick={initSwap}
+					onClick={stripePaymentInit}
+					type="submit"
+					className="w-[98%] h-16 rounded-3xl bg-[#546ADA] border-none text-4xl text-white uppercase mx-auto mt-20"
+				>
+					Stripe
+				</button>
+				<button
 					type="submit"
 					className="w-[98%] h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-20"
 				>
