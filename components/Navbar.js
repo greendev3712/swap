@@ -20,7 +20,8 @@ const Navbar = () => {
 		if (!user) {
 			authenticate();
 		}
-	}, []);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [user]);
 
 	const openMobileMenuHandler = () => {
 		setOpenMobileMenu(true);
@@ -55,8 +56,9 @@ const Navbar = () => {
 				</div>
 				{!user ? (
 					<button
-						className="text-[#242424] text-md uppercase underline underline-offset-8 underline-color decoration-[#90E040]"
 						onClick={authenticate}
+						type="button"
+						className="bg-[#3985F5] py-4 px-6 rounded-lg ml-20 text-white uppercase"
 					>
 						authenticate
 					</button>
@@ -93,6 +95,7 @@ const Navbar = () => {
 					</button>
 				</div>
 			)}
+			{/* Subscribe button */}
 
 			{/* User Account */}
 			<div></div>
