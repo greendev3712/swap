@@ -20,9 +20,14 @@ import {
 	Percent,
 } from "pancakeswap-v2-testnet-sdk";
 import { ethers } from "ethers";
-import Router from "next/router";
 
-
+const chainId = ChainId.TESTNET;
+// const provider = new ethers.providers.JsonRpcProvider(
+// 	"https://bsctestapi.terminet.io/rpc",
+// 	{ name: "binance", chainId: chainId }
+// );
+const YLTtokenAddress = "0x8e0B7Ced8867D512C75335883805cD564c343cB9";
+const USDTtokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd";
 
 const currencies = [
 	{id: 1, title: "USDT", image: USDTLogo},
@@ -38,28 +43,21 @@ export default function Home() {
 	const [rate, setRate] = useState(rates[0]);
 	const [ylt, setYlt] = useState(0);
 	const [reverted, setReverted] = useState(false);
-	const { user } = useMoralis();
+	const { user, account } = useMoralis();
 
 	async function initSwap() {
-		const chainId = ChainId.TESTNET;
-		const provider = new ethers.providers.JsonRpcProvider(
-		"https://bsctestapi.terminet.io/rpc",
-			{ name: "binance", chainId: chainId }
-		);
-
-		const YLTtokenAddress = "0x8e0B7Ced8867D512C75335883805cD564c343cB9";
-		const USDTtokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd";
+		const web3provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
 		const YLT = await Fetcher.fetchTokenData(
 			chainId,
 			YLTtokenAddress,
-			provider
+			web3provider
 		);
 		const USDT = await Fetcher.fetchTokenData(
 			chainId,
 			USDTtokenAddress,
-			provider
+			web3provider
 		);
-		const pair = await Fetcher.fetchPairData(YLT, USDT, provider);
+		const pair = await Fetcher.fetchPairData(YLT, USDT, web3provider);
 		const route = new Route([pair], USDT);
 		const trade = new Trade(
 			route,
@@ -75,18 +73,9 @@ export default function Home() {
 		const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
 		const value = trade.inputAmount.raw;
 
-		let metaSigner = provider.getSigner(to);
-		// const address = await metaSigner.getAddress()
-		// console.log(
-		// 	signer,
-		// 	"--signer",
-		// 	metaSigner,
-		// 	"--metaSigner",
-		// 	account,
-		// 	"--account",
-		// 	metaAccount,
-		// 	"--metaAccount"
-		// );
+		await web3provider.send('eth_requestAccounts', []);
+		let metaSigner = web3provider.getSigner(to);
+		console.log(metaSigner)
 
 		// contract and its abi
 		const pancakeswap = new ethers.Contract(
@@ -96,6 +85,8 @@ export default function Home() {
 			],
 			metaSigner
 		);
+
+		console.log(pancakeswap);
 
 		// transaction to carry
 		const tx = await pancakeswap.swapExactTokensForTokens(amountIn,amountOutMin[1], path,to, deadline, { gasPrice: 20e9, gasLimit: 50000 })
