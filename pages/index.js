@@ -6,14 +6,10 @@ import WAValidator from "multicoin-address-validator";
 import { rates } from "../utils/helperFunction";
 import Navbar from "../components/Navbar";
 import { useMoralis } from "react-moralis";
-import USDT from '../assets/usdt.png';
-import USD from '../assets/usd.png';
+import USDTLogo from '../assets/usdt.png';
+import USDLogo from '../assets/usd.png';
 import Footer from "../components/Footer";
 import Logo from "../assets/Logoemblem.svg"
-import { useState } from "react";
-import WAValidator from "multicoin-address-validator";
-import { rates } from "../utils/helperFunction";
-import Navbar from "../components/Navbar";
 import {
 	ChainId,
 	Fetcher,
@@ -26,9 +22,11 @@ import {
 import { ethers } from "ethers";
 import Router from "next/router";
 
+
+
 const currencies = [
-	{id: 1, title: "USDT", image: USDT},
-	{id: 2, title: "USD", image: USD},
+	{id: 1, title: "USDT", image: USDTLogo},
+	{id: 2, title: "USD", image: USDLogo},
 ];
 
 export default function Home() {
@@ -45,7 +43,7 @@ export default function Home() {
 	async function initSwap() {
 		const chainId = ChainId.TESTNET;
 		const provider = new ethers.providers.JsonRpcProvider(
-			"https://bsctestapi.terminet.io/rpc",
+		"https://bsctestapi.terminet.io/rpc",
 			{ name: "binance", chainId: chainId }
 		);
 
@@ -72,22 +70,23 @@ export default function Home() {
 		const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw;
 		const amountIn = 1e9;
 		const path = [USDT.address, YLT.address];
-		const to = "0x463B083cDefE93214b9398fEEf29C4f3C3730185";
+		// const to = "0x463B083cDefE93214b9398fEEf29C4f3C3730185";
+		const to = "0xafA47c538074BE61F955D2ff30B9B09783B4B234";
 		const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
 		const value = trade.inputAmount.raw;
 
-		// need to sign the contract
-		let metaSigner = provider.getSigner();
-		console.log(
-			signer,
-			"--signer",
-			metaSigner,
-			"--metaSigner",
-			account,
-			"--account",
-			metaAccount,
-			"--metaAccount"
-		);
+		let metaSigner = provider.getSigner(to);
+		// const address = await metaSigner.getAddress()
+		// console.log(
+		// 	signer,
+		// 	"--signer",
+		// 	metaSigner,
+		// 	"--metaSigner",
+		// 	account,
+		// 	"--account",
+		// 	metaAccount,
+		// 	"--metaAccount"
+		// );
 
 		// contract and its abi
 		const pancakeswap = new ethers.Contract(
@@ -95,12 +94,12 @@ export default function Home() {
 			[
 				"function swapExactTokensForTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external returns (uint[] memory amounts)",
 			],
-			account
+			metaSigner
 		);
 
 		// transaction to carry
-		// const tx = await pancakeswap.swapExactTokensForTokens(amountIn,amountOutMin[1], path,to, deadline, { value, gasPrice: 20e9 })
-		// console.log(tx, tx.hash);
+		const tx = await pancakeswap.swapExactTokensForTokens(amountIn,amountOutMin[1], path,to, deadline, { gasPrice: 20e9, gasLimit: 50000 })
+		console.log(tx, tx.hash);
 
 		// MetaMask requires requesting permission to connect users accounts
 
@@ -239,13 +238,7 @@ export default function Home() {
 					value={walletAddress}
 					onChange={(e) => validateWalletAddress(e)}
 					className={`form-input font-normal text-lg ${
-<<<<<<< HEAD
 						walletAddress.length > 0 ? validateClassNameRef.current : ''
-=======
-						validWalletAddress
-							? "border-2 border-green-500"
-							: "border-2 border-red-500"
->>>>>>> pancake_swap
 					}`}
 				/>
 				{!user && (
@@ -257,19 +250,24 @@ export default function Home() {
 						className="form-input text-lg font-normal"
 					/>
 				)}
-				<button
-					onClick={stripePaymentInit}
-					type="submit"
-					className="w-[98%] h-16 rounded-3xl bg-[#546ADA] border-none text-4xl text-white uppercase mx-auto mt-20"
-				>
-					Stripe
-				</button>
-				<button
-					type="submit"
-					className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7"
-				>
-					swap
-				</button>
+				{selectedCurrency.id === 1 ? (
+					<button
+						onClick={initSwap}
+						type="submit"
+						className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7"
+					>
+						swap
+					</button>
+
+				) : (
+					<button
+						onClick={stripePaymentInit}
+						type="submit"
+						className="w-full h-16 rounded-3xl bg-[#546ADA] border-none text-4xl text-white uppercase mx-auto mt-7"
+					>
+						Stripe
+					</button>
+				)}
 				{/* End Input Container */}
 			</div>
 
