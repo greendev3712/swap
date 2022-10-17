@@ -47,6 +47,7 @@ export default function Home() {
 
 	async function initSwap() {
 		const web3provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
+		console.log(web3provider, provider)
 		const YLT = await Fetcher.fetchTokenData(
 			chainId,
 			YLTtokenAddress,
@@ -66,13 +67,17 @@ export default function Home() {
 		);
 		const slippageTolerance = new Percent("50", "1000");
 		const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw;
-		const amountIn = 1e9;
+		const amountIn = 10e14;
 		const path = [USDT.address, YLT.address];
 		// const to = "0x463B083cDefE93214b9398fEEf29C4f3C3730185";
-		const to = "0xafA47c538074BE61F955D2ff30B9B09783B4B234";
 		const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
 		const value = trade.inputAmount.raw;
 
+		const accounts = await ethereum.request({
+			method: 'eth_requestAccounts',
+		});
+		console.log(accounts)
+		const to = accounts[0]
 		await web3provider.send('eth_requestAccounts', []);
 		let metaSigner = web3provider.getSigner(to);
 		console.log(metaSigner)
@@ -93,7 +98,6 @@ export default function Home() {
 		console.log(tx, tx.hash);
 
 		// MetaMask requires requesting permission to connect users accounts
-
 		// The MetaMask plugin also allows signing transactions to
 		// send ether and pay to change state within the blockchain.
 		// For this, you need the account signer...
