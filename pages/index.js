@@ -47,7 +47,6 @@ export default function Home() {
 
 	async function initSwap() {
 		const web3provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
-		console.log(web3provider, provider)
 		const YLT = await Fetcher.fetchTokenData(
 			chainId,
 			YLTtokenAddress,
@@ -60,14 +59,16 @@ export default function Home() {
 		);
 		const pair = await Fetcher.fetchPairData(YLT, USDT, web3provider);
 		const route = new Route([pair], USDT);
-		const trade = new Trade(
-			route,
-			new TokenAmount(USDT, "1000000000000000"),
-			TradeType.EXACT_INPUT
-		);
+			const trade = new Trade(
+				route,
+				new TokenAmount(USDT, 10e17 * usdAmount),
+				TradeType.EXACT_INPUT
+			);
 		const slippageTolerance = new Percent("50", "1000");
 		const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw;
-		const amountIn = 10e14;
+		console.log(trade.executionPrice.toSignificant(6), "execution price")
+		console.log(amountOutMin)
+		const amountIn = usdAmount;
 		const path = [USDT.address, YLT.address];
 		// const to = "0x463B083cDefE93214b9398fEEf29C4f3C3730185";
 		const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
@@ -92,9 +93,9 @@ export default function Home() {
 		);
 
 		console.log(pancakeswap);
-
+		console.log(+amountIn, amountOutMin[2], path, to, deadline, { gasPrice: 20e9, gasLimit: 50000 })
 		// transaction to carry
-		const tx = await pancakeswap.swapExactTokensForTokens(amountIn,amountOutMin[1], path,to, deadline, { gasPrice: 20e9, gasLimit: 50000 })
+		const tx = await pancakeswap.swapExactTokensForTokens(+amountIn, amountOutMin[2], path, to, deadline)
 		console.log(tx, tx.hash);
 
 		// MetaMask requires requesting permission to connect users accounts
