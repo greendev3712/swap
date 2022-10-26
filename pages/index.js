@@ -20,6 +20,7 @@ import {
 	Percent,
 } from "pancakeswap-v2-testnet-sdk";
 import { ethers } from "ethers";
+import {emailValidate} from "../utils/emailValidation";
 
 const chainId = ChainId.TESTNET;
 // const provider = new ethers.providers.JsonRpcProvider(
@@ -47,14 +48,10 @@ export default function Home() {
 
 	const addEmail = async () => {
 		const { id } = user;
-		const result = await Moralis.Cloud.run('addEmail', {
+		await Moralis.Cloud.run('addEmail', {
 			id,
 			email,
 		});
-
-		if (result) {
-			console.log('result add email', result, user?.attributes.email);
-		}
 	}
 
 	const canSwap = () => {
@@ -63,6 +60,10 @@ export default function Home() {
 		if (user && !user?.attributes.email && !email) {
 			console.log('email')
 			hasError = true;
+		}
+
+		if (!emailValidate(email))  {
+			hasError = true
 		}
 
 		if (user && !user?.attributes.ethAddress && !walletAddress) {
@@ -81,7 +82,6 @@ export default function Home() {
 	async function initSwap() {
 
 		if (isAuthenticated && email) {
-			console.log('tut')
 			await addEmail();
 		}
 
@@ -131,11 +131,11 @@ export default function Home() {
 			metaSigner
 		);
 
-		// console.log(pancakeswap);
-		// console.log(+amountIn, amountOutMin[2], path, to, deadline, { gasPrice: 20e9, gasLimit: 50000 })
+		console.log(pancakeswap);
+		console.log(+amountIn, amountOutMin[2], path, to, deadline, { gasPrice: 20e9, gasLimit: 50000 })
 		// transaction to carry
-		// const tx = await pancakeswap.swapExactTokensForTokens(+amountIn, amountOutMin[2], path, to, deadline)
-		// console.log(tx, tx.hash);
+		const tx = await pancakeswap.swapExactTokensForTokens(+amountIn, amountOutMin[2], path, to, deadline);
+		console.log(tx, tx.hash);
 
 		// MetaMask requires requesting permission to connect users accounts
 		// The MetaMask plugin also allows signing transactions to

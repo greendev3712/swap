@@ -20,8 +20,6 @@ export default function Account() {
 
     const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-    console.log(user?.attributes);
-
     const profilePicture = user?.attributes.profile_picture;
 
     useEffect( () => {
