@@ -1,9 +1,26 @@
+import MarketPlaceSVG from '/assets/marketplace.svg';
+
 const menuLinks =  [
-	{ id: 1, title: "MARKETPLACE", url: "https://nft.yourlifegames.com/" },
+	{
+		id: 1,
+		title: "Marketplace",
+		url: "https://nft.yourlifegames.com/",
+		icon: <MarketPlaceSVG />,
+	},
 	{
 		id: 2,
-		title: "MY ACCOUNT",
+		title: "My account",
 		url: "https://nft.yourlifegames.com/myaccount",
+	},
+	{
+		id: 3,
+		title: "Collections",
+		url: "https://nft.yourlifegames.com/collections",
+	},
+	{
+		id: 4,
+		title: "Chat",
+		url: "https://nft.yourlifegames.com/chat",
 	},
 ];
 

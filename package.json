@@ -22,6 +22,7 @@
     "pancakeswap-v2-testnet-sdk": "^2.4.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-modal": "^3.16.1",
     "react-moralis": "^1.4.2",
     "stripe": "^10.13.0"
   },
