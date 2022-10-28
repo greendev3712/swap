@@ -1,4 +1,4 @@
-import {useState, useRef, useEffect} from "react";
+import {useState, useRef} from "react";
 import { Scrolling } from "../components/Scrolling";
 import CurrencyDropdown from "../components/CurrencyDropdown";
 import "react-dropdown/style.css";
@@ -21,12 +21,15 @@ import {
 } from "pancakeswap-v2-testnet-sdk";
 import { ethers } from "ethers";
 import {emailValidate} from "../utils/emailValidation";
+import Preloader from "../components/Preloader/Preloader";
 
 const chainId = ChainId.TESTNET;
-// const provider = new ethers.providers.JsonRpcProvider(
-// 	"https://bsctestapi.terminet.io/rpc",
-// 	{ name: "binance", chainId: chainId }
-// );
+console.log(chainId);
+
+const web3provider = new ethers.providers.JsonRpcProvider(
+	"https://bsctestapi.terminet.io/rpc",
+	{ name: "binance", chainId: chainId }
+);
 
 const YLTtokenAddress = "0x8e0B7Ced8867D512C75335883805cD564c343cB9";
 const USDTtokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd";
@@ -44,7 +47,9 @@ export default function Home() {
 	const [email, setEmail] = useState("");
 	const [rate, setRate] = useState(rates[0]);
 	const [ylt, setYlt] = useState(0);
-	const { user, isAuthenticated, authenticate, account, Moralis } = useMoralis();
+	const [isLoading, setIsLoading] = useState(false);
+	const { user, isAuthenticated, Moralis } = useMoralis();
+
 
 	const addEmail = async () => {
 		const { id } = user;
@@ -62,7 +67,7 @@ export default function Home() {
 			hasError = true;
 		}
 
-		if (!emailValidate(email))  {
+		if (email && !emailValidate(email))  {
 			hasError = true
 		}
 
@@ -81,11 +86,12 @@ export default function Home() {
 
 	async function initSwap() {
 
+		setIsLoading(true);
 		if (isAuthenticated && email) {
 			await addEmail();
 		}
 
-		const web3provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
+		// const web3provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
 		const YLT = await Fetcher.fetchTokenData(
 			chainId,
 			YLTtokenAddress,
@@ -109,18 +115,14 @@ export default function Home() {
 		// console.log(amountOutMin)
 		const amountIn = usdAmount;
 		const path = [USDT.address, YLT.address];
-		// const to = "0x463B083cDefE93214b9398fEEf29C4f3C3730185";
 		const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
-		const value = trade.inputAmount.raw;
 
 		const accounts = await ethereum.request({
 			method: 'eth_requestAccounts',
 		});
-		// console.log(accounts)
 		const to = accounts[0]
-		await web3provider.send('eth_requestAccounts', []);
+
 		let metaSigner = web3provider.getSigner(to);
-		// console.log(metaSigner)
 
 		// contract and its abi
 		const pancakeswap = new ethers.Contract(
@@ -131,11 +133,13 @@ export default function Home() {
 			metaSigner
 		);
 
-		console.log(pancakeswap);
 		console.log(+amountIn, amountOutMin[2], path, to, deadline, { gasPrice: 20e9, gasLimit: 50000 })
 		// transaction to carry
-		const tx = await pancakeswap.swapExactTokensForTokens(+amountIn, amountOutMin[2], path, to, deadline);
-		console.log(tx, tx.hash);
+		const tx = await pancakeswap.swapExactTokensForTokens(+amountIn, amountOutMin[2], path, to, deadline, { gasLimit: 50000 });
+		console.log(tx.wait());
+		// console.log(tx, tx.hash);
+
+		setIsLoading(false);
 
 		// MetaMask requires requesting permission to connect users accounts
 		// The MetaMask plugin also allows signing transactions to
@@ -172,8 +176,9 @@ export default function Home() {
 	};
 
 	// stripe payment initiator
-	const stripePaymentInit = (e) => {
+	const stripePaymentInit = () => {
 		console.log("initiated", process.env.NEXT_PUBLIC_SERVER_URL);
+		setIsLoading(true);
 		fetch(`/api/create-checkout-session`, {
 			method: "POST",
 			headers: {
@@ -196,19 +201,21 @@ export default function Home() {
 			})
 			.catch((e) => {
 				console.error(e.error);
-			});
+			})
 	};
 
 	return (
 		<>
+			{isLoading && (
+				<Preloader />
+			)}
 			<Scrolling />
-			<div className="h-screen w-full relative overflow-x-hidden mx-auto flex flex-col justify-between pt-6 items-center">
+			<div className="min-h-screen w-full relative overflow-x-hidden mx-auto flex flex-col justify-between pt-6 items-center">
 				{/* Main Container */}
 
-				<Navbar />
-
+				<Navbar setIsLoading={setIsLoading} />
 				{/* Input Container */}
-				<div className="max-w-screen-sm w-full bg-white relative flex flex-col border-2 border-[#90e040] rounded-2xl pt-3 pb-5 px-2.5">
+				<div className="sm:max-w-screen-sm sm:w-full bg-white relative mx-3 flex flex-col border-2 border-[#90e040] rounded-2xl pt-3 pb-5 px-2.5 my-10">
 					{/* Inner Container */}
 					<div className="relative text-5xl flex flex-col mb-7">
 						<div className="w-full relative">

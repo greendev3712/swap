@@ -6,15 +6,15 @@ import {Router} from "next/router";
 import userDefaultAvatar from '../assets/user.png';
 import Chevron from '../assets/chevron.svg';
 import useOutsideClick from "../hooks/useOutsideClick";
+import Bell from '../assets/bell.svg';
 
-export default function Account() {
+export default function Account({ setIsLoading, openEventsModal, onAuth }) {
     const ref = useRef(null);
 
     const {
         Moralis,
         user,
         logout,
-        authenticate,
         isAuthenticated,
     } = useMoralis();
 
@@ -25,12 +25,12 @@ export default function Account() {
     useEffect( () => {
         if (!isAuthenticated) {
             const auth = async () => {
-                await authUser();
+                await onAuth();
             }
 
             auth();
         }
-    }, [isAuthenticated]);
+    }, []);
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -91,7 +91,7 @@ export default function Account() {
                         }
                     }
                 } catch (error) {
-                    console.log(error);
+                    console.log('catch', error);
                 }
             }
             loadEmail();
@@ -109,14 +109,6 @@ export default function Account() {
     };
 
 
-    const authUser = async () => {
-        await authenticate({
-            provider: 'web3Auth',
-            chainId: '0x61',
-            theme: 'light',
-            clientId: 'BKNZR_vNmy3w-Ni4p2q1-RX-xq00yFvutjahw_TuAQJps7Xd-2d_dV9AlRO_Mz7tSWgjMjdcbfhrQ9QNXXouWNI',
-        })
-    }
 
     const openUserMenu = () => {
         setUserMenuOpen(true);
@@ -144,8 +136,16 @@ export default function Account() {
                 <button onClick={openUserMenu}>
                     <Chevron className="w-3.5 h-1.5 fill-transparent stroke-[#242424] grow" />
                 </button>
+                <div className="h-12 w-[1px] bg-[#242424] mx-4 opacity-30"></div>
+                <button
+                    className="h-8 w-8 rounded-full bg-[#F3F4F6] shrink-0 flex justify-center items-center"
+                    onClick={openEventsModal}
+                >
+                    <Bell />
+                </button>
                 {/*user menu*/}
                 {userMenuOpen && (
+
                     <div className="absolute flex py-4 px-4 top-16 w-40 bg-[#242424] text-white rounded-lg">
                         <button onClick={() => logout()}>
                             Logout
@@ -155,9 +155,9 @@ export default function Account() {
             </div>
         ) : (
                 <button
-                    onClick={authUser}
+                    onClick={onAuth}
                     type="button"
-                    className="flex items-center bg-[#3985F5] py-4 px-6 rounded-lg ml-20 text-white uppercase h-10"
+                    className="hidden sm:flex items-center bg-[#3985F5] py-2 px-6 rounded-lg sm:ml-20 text-white uppercase h-10"
                 >
                     authenticate
                 </button>
