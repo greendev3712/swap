@@ -4,11 +4,12 @@ const stripe = require("stripe")(process.env.NEXT_PUBLIC_STRIPE_PRIVATE_KEY)
 export default async function handler(req, res) {
     console.log(req.body, stripe.checkout);
     if (req.method == "POST") {
-        let quantity = req.body.quantity
+        const { quantity, email } = req.body
         try {
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
                 mode: 'payment',
+                customer_email: email,
                 line_items: [{
                     price_data: {
                         currency: 'usd',
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
                         },
                         unit_amount: '100'
                     },
-                    quantity: quantity,
+                    quantity,
                 }],
                 success_url: `${process.env.NEXT_PUBLIC_URL}/success`,
                 cancel_url: `${process.env.NEXT_PUBLIC_URL}/cancel`

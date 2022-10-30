@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import {useState, useRef} from "react";
 import { Scrolling } from "../components/Scrolling";
 import CurrencyDropdown from "../components/CurrencyDropdown";
 import "react-dropdown/style.css";
@@ -20,12 +20,17 @@ import {
 	Percent,
 } from "pancakeswap-v2-testnet-sdk";
 import { ethers } from "ethers";
+import {emailValidate} from "../utils/emailValidation";
+import Preloader from "../components/Preloader/Preloader";
 
 const chainId = ChainId.TESTNET;
-// const provider = new ethers.providers.JsonRpcProvider(
-// 	"https://bsctestapi.terminet.io/rpc",
-// 	{ name: "binance", chainId: chainId }
-// );
+console.log(chainId);
+
+const web3provider = new ethers.providers.JsonRpcProvider(
+	"https://bsctestapi.terminet.io/rpc",
+	{ name: "binance", chainId: chainId }
+);
+
 const YLTtokenAddress = "0x8e0B7Ced8867D512C75335883805cD564c343cB9";
 const USDTtokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd";
 
@@ -42,12 +47,53 @@ export default function Home() {
 	const [email, setEmail] = useState("");
 	const [rate, setRate] = useState(rates[0]);
 	const [ylt, setYlt] = useState(0);
-	const [reverted, setReverted] = useState(false);
-	const { user, account } = useMoralis();
+	const [isLoading, setIsLoading] = useState(false);
+	const { user, isAuthenticated, Moralis } = useMoralis();
+
+
+	const addEmail = async () => {
+		const { id } = user;
+		await Moralis.Cloud.run('addEmail', {
+			id,
+			email,
+		});
+	}
+
+	const canSwap = () => {
+		let hasError = false;
+
+		if (user && !user?.attributes.email && !email) {
+			console.log('email')
+			hasError = true;
+		}
+
+		if (email && !emailValidate(email))  {
+			hasError = true
+		}
+
+		if (user && !user?.attributes.ethAddress && !walletAddress) {
+			console.log('wallet')
+			hasError = true;
+		}
+
+		if (!ylt && !usdAmount) {
+			console.log('amount')
+			hasError = true;
+		}
+
+		return hasError;
+	}
 
 	async function initSwap() {
 		const web3provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
 		console.log(web3provider)
+
+		setIsLoading(true);
+		if (isAuthenticated && email) {
+			await addEmail();
+		}
+
+		// const web3provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
 		const YLT = await Fetcher.fetchTokenData(
 			chainId,
 			YLTtokenAddress,
@@ -67,20 +113,17 @@ export default function Home() {
 			);
 		const slippageTolerance = new Percent("50", "1000");
 		const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw;
-		console.log(trade.executionPrice.toSignificant(6), "execution price")
-		console.log(amountOutMin)
+		// console.log(trade.executionPrice.toSignificant(6), "execution price")
+		// console.log(amountOutMin)
 		const amountIn = usdAmount;
 		const path = [USDT.address, YLT.address];
-		// const to = "0x463B083cDefE93214b9398fEEf29C4f3C3730185";
 		const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
 		const accounts = await ethereum.request({
 			method: 'eth_requestAccounts',
 		});
-		console.log(accounts)
 		const to = accounts[0]
-		await web3provider.send('eth_requestAccounts', []);
+
 		let metaSigner = web3provider.getSigner(to);
-		console.log(metaSigner)
 
 		// contract and its abi
 		const pancakeswap = new ethers.Contract(
@@ -96,7 +139,7 @@ export default function Home() {
 		// transaction to carry
 		const tx = await pancakeswap.swapExactTokensForTokens(BigInt(amountIn *10e17) , amountOutMin[2], path, to, deadline)
 		console.log(tx, tx.hash);
-
+		setIsLoading(false);
 		// MetaMask requires requesting permission to connect users accounts
 		// The MetaMask plugin also allows signing transactions to
 		// send ether and pay to change state within the blockchain.
@@ -134,10 +177,8 @@ export default function Home() {
 		setRate({...tempval})
 	};
 
-	const validateWalletAddress = (e) => {
-		setWalletAddress(e.target.value);
-
-		const valid = WAValidator.validate(e.target.value, "BNB");
+	const validateWalletAddress = (address) => {
+		const valid = WAValidator.validate(address, "BNB");
 
 		if (valid) {
 			validateClassNameRef.current = 'border-2 border-green-500';
@@ -146,19 +187,21 @@ export default function Home() {
 		}
 	};
 
+	const changeWalletValue = (value) => {
+		setWalletAddress(value);
+		validateWalletAddress(value);
+	}
+
 	const changeCurrentCurrency = (id) => {
 		const found = currencies.find((currency) => currency.id === id);
 
 		setSelectedCurrency(found);
 	};
 
-	const revertInputsHandler = () => {
-		setReverted(!reverted);
-	}
-
 	// stripe payment initiator
-	const stripePaymentInit = (e) => {
+	const stripePaymentInit = () => {
 		console.log("initiated", process.env.NEXT_PUBLIC_SERVER_URL);
+		setIsLoading(true);
 		fetch(`/api/create-checkout-session`, {
 			method: "POST",
 			headers: {
@@ -166,6 +209,7 @@ export default function Home() {
 			},
 			body: JSON.stringify({
 				quantity: usdAmount,
+				email: user?.attributes.email ?? email,
 			}),
 		})
 			.then(async (res) => {
@@ -180,118 +224,120 @@ export default function Home() {
 			})
 			.catch((e) => {
 				console.error(e.error);
-			});
+			})
 	};
 
 	return (
-		// Layout
-		<div className="bg-[#f6f6f7] h-screen w-full relative overflow-x-hidden mx-auto flex flex-col justify-between pt-6 items-center">
-			{/* Main Container */}
+		<>
+			{isLoading && (
+				<Preloader />
+			)}
 			<Scrolling />
+			<div className="min-h-screen w-full relative overflow-x-hidden mx-auto flex flex-col justify-between pt-6 items-center">
+				{/* Main Container */}
 
-			<Navbar />
-
-			{/* Input Container */}
-			<div className="max-w-screen-sm w-full bg-white relative flex flex-col border-2 border-[#90e040] rounded-2xl pt-3 pb-5 px-2.5">
-				<button
-					type="button"
-					className="h-4 bg-transparent self-end mb-4"
-					onClick={changeRate}
-				>
-					{rate.rate} - update rate{" "}
-					<span className="text-blue-500">&#8635;</span>
-				</button>
-				{/* Inner Container */}
-				<div className="relative text-5xl flex flex-col mb-7">
-					<div className="w-full relative">
-						<CurrencyDropdown 
-							options={currencies}
-							selected={selectedCurrency}
-							onChange={changeCurrentCurrency}
-							className="absolute top-3 right-5"
-						/>
-						<input
-							type="number"
-							placeholder="Enter amount"
-							value={usdAmount}
-							onChange={(e) => {
-								setUsdAmount(e.target.value);
-								setYlt(e.target.value * rate.ylt);
-							}}
-							className="form-input h-[100px] text-2xl sm:text-5xl"
-						/>
+				<Navbar setIsLoading={setIsLoading} />
+				{/* Input Container */}
+				<div className="sm:max-w-screen-sm sm:w-full bg-white relative mx-3 flex flex-col border-2 border-[#90e040] rounded-2xl pt-3 pb-5 px-2.5 my-10">
+					{/* Inner Container */}
+					<div className="relative text-5xl flex flex-col mb-7">
+						<div className="w-full relative">
+							<CurrencyDropdown
+								options={currencies}
+								selected={selectedCurrency}
+								onChange={changeCurrentCurrency}
+								className="absolute top-3 right-5"
+							/>
+							<input
+								type="number"
+								placeholder="Enter amount"
+								value={usdAmount}
+								onChange={(e) => {
+									setUsdAmount(e.target.value);
+									setYlt(e.target.value * rate.ylt);
+								}}
+								className="form-input h-[100px] text-2xl sm:text-3xl"
+							/>
+						</div>
+						{/* Rest Inputs */}
+						<div className="w-full relative">
+							<Logo className="absolute right-5 h-12 w-12 top-2/4 -translate-y-2/4 fill-black" />
+							<input
+								type="number"
+								placeholder="YLT Token Amount"
+								value={ylt}
+								onChange={(e) => {
+									setYlt(e.target.value);
+									setUsdAmount(e.target.value / rate.ylt);
+								}}
+								className="form-input mt-2 w-full h-[100px] text-2xl sm:text-3xl"
+							/>
+						</div>
 					</div>
-					{/* Swap Icon */}
+
+					{!user?.attributes.ethAddress && (
+						<>
+							<label
+								htmlFor="walletAddress"
+								className="mt-5 w-[97%] mx-auto text-gray-500 text-xs"
+							>
+								Your wallet must be BEP-20 compatible
+							</label>
+							<input
+								id="walletAddress"
+								type="text"
+								placeholder="Enter your crypto wallet address"
+								value={walletAddress}
+								onChange={(e) => changeWalletValue(e.target.value)}
+								className={`form-input font-normal text-lg ${
+									walletAddress.length > 0 ? validateClassNameRef.current : ''
+								}`}
+							/>
+						</>
+					)}
+					{!user?.attributes.email && (
+						<input
+							type="email"
+							placeholder="Enter your email address"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							className="form-input text-lg font-normal"
+						/>
+					)}
 					<button
-						onClick={revertInputsHandler}
-						className="w-14 h-14 z-[1] text-[#90e040] bg-[#f6f6f7] -translate-x-2/4 -translate-y-2/4 text-2xl border border-white rounded-full absolute top-2/4 left-2/4"
+						type="button"
+						className="h-4 bg-transparent self-end mt-4"
+						onClick={changeRate}
 					>
-						&#8645;
+						{rate.rate} - update rate{" "}
+						<span className="text-blue-500">&#8635;</span>
 					</button>
-					{/* Rest Inputs */}
-					<div className={`w-full relative ${reverted ? 'order-first' : ''}`}>
-						<Logo className="absolute right-5 h-12 w-12 top-2/4 -translate-y-2/4 fill-black" />
-						<input
-							type="number"
-							placeholder="YLT Token Amount"
-							value={ylt}
-							onChange={(e) => {
-								setYlt(e.target.value);
-								setUsdAmount(e.target.value / rate.ylt);
-							}}
-							className="form-input mt-2 w-full h-[100px] text-2xl sm:text-5xl"
-						/>
-					</div>
+					{selectedCurrency.id === 1 ? (
+						<button
+							onClick={initSwap}
+							type="submit"
+							className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
+							disabled={canSwap()}
+						>
+							swap
+						</button>
+
+					) : (
+						<button
+							onClick={stripePaymentInit}
+							type="submit"
+							className="w-full h-16 rounded-3xl bg-[#546ADA] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
+							disabled={canSwap()}
+						>
+							Stripe
+						</button>
+					)}
+					{/* End Input Container */}
 				</div>
 
-				<label
-					htmlFor="walletAddress"
-					className="mt-5 w-[97%] mx-auto text-gray-500 text-xs"
-				>
-					Your wallet must be BEP-20 compatible
-				</label>
-				<input
-					id="walletAddress"
-					type="text"
-					placeholder="Enter your crypto wallet address"
-					value={walletAddress}
-					onChange={(e) => validateWalletAddress(e)}
-					className={`form-input font-normal text-lg ${
-						walletAddress.length > 0 ? validateClassNameRef.current : ''
-					}`}
-				/>
-				{!user && (
-					<input
-						type="email"
-						placeholder="Enter your email address"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-						className="form-input text-lg font-normal"
-					/>
-				)}
-				{selectedCurrency.id === 1 ? (
-					<button
-						onClick={initSwap}
-						type="submit"
-						className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7"
-					>
-						swap
-					</button>
-
-				) : (
-					<button
-						onClick={stripePaymentInit}
-						type="submit"
-						className="w-full h-16 rounded-3xl bg-[#546ADA] border-none text-4xl text-white uppercase mx-auto mt-7"
-					>
-						Stripe
-					</button>
-				)}
-				{/* End Input Container */}
+				{/* Footer */}
+				<Footer />
 			</div>
-
-			{/* Footer */}
-			<Footer />
-		</div>
+		</>
 	);
 }

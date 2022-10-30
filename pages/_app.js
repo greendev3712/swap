@@ -3,6 +3,7 @@ import { MoralisProvider } from "react-moralis";
 import Head from "next/head";
 
 function MyApp({ Component, pageProps }) {
+
 	return (
 		<MoralisProvider
 			appId={process.env.NEXT_PUBLIC_APP_ID}
