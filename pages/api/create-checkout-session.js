@@ -19,8 +19,8 @@ export default async function handler(req, res) {
                     },
                     quantity: quantity,
                 }],
-                success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/success`,
-                cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/cancel`
+                success_url: `${process.env.NEXT_PUBLIC_URL}/success`,
+                cancel_url: `${process.env.NEXT_PUBLIC_URL}/cancel`
             })
             console.log(session);
             res.json({ url: session.url })

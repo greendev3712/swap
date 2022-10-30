@@ -47,6 +47,7 @@ export default function Home() {
 
 	async function initSwap() {
 		const web3provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
+		console.log(web3provider)
 		const YLT = await Fetcher.fetchTokenData(
 			chainId,
 			YLTtokenAddress,
@@ -72,8 +73,6 @@ export default function Home() {
 		const path = [USDT.address, YLT.address];
 		// const to = "0x463B083cDefE93214b9398fEEf29C4f3C3730185";
 		const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
-		const value = trade.inputAmount.raw;
-
 		const accounts = await ethereum.request({
 			method: 'eth_requestAccounts',
 		});
@@ -93,9 +92,9 @@ export default function Home() {
 		);
 
 		console.log(pancakeswap);
-		console.log(+amountIn, amountOutMin[2], path, to, deadline, { gasPrice: 20e9, gasLimit: 50000 })
+		console.log(BigInt(amountIn * 10e17), amountOutMin[2], path, to, deadline)
 		// transaction to carry
-		const tx = await pancakeswap.swapExactTokensForTokens(+amountIn, amountOutMin[2], path, to, deadline)
+		const tx = await pancakeswap.swapExactTokensForTokens(BigInt(amountIn *10e17) , amountOutMin[2], path, to, deadline)
 		console.log(tx, tx.hash);
 
 		// MetaMask requires requesting permission to connect users accounts
@@ -103,12 +102,36 @@ export default function Home() {
 		// send ether and pay to change state within the blockchain.
 		// For this, you need the account signer...
 	}
-	const changeRate = () => {
-		const randomIndex = Math.floor(Math.random() * rates.length);
-		const item = rates[randomIndex];
-		setRate(item);
-		setUsdAmount("");
-		setYlt(0);
+	const changeRate = async () => {
+		 const chainId = 97;
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://bsctestapi.terminet.io/rpc",
+      { name: "binance", chainId: chainId }
+    );
+
+    const YLTtokenAddress = "0x8e0B7Ced8867D512C75335883805cD564c343cB9";
+    const USDTtokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd";
+    const YLT = await Fetcher.fetchTokenData(
+      chainId,
+      YLTtokenAddress,
+      provider
+    );
+    const USDT = await Fetcher.fetchTokenData(
+      chainId,
+      USDTtokenAddress,
+      provider
+    );
+    const pair = await Fetcher.fetchPairData(YLT, USDT, provider);
+    const route = new Route([pair], USDT);
+    const trade = new Trade(
+      route,
+      new TokenAmount(USDT, 10e17 * 1),
+      TradeType.EXACT_INPUT
+	);
+		let tempval = rate
+		tempval.rate = `$1/${route.midPrice.toSignificant(2)}ylt`
+		console.log(tempval)
+		setRate({...tempval})
 	};
 
 	const validateWalletAddress = (e) => {

@@ -7,7 +7,7 @@ import LINKS from "../constants/menu";
 import userDefaultAvatar from '../assets/user.png';
 import Burger from '../assets/burger.svg';
 import Cross from '../assets/cross.svg';
-import useOutsideClick from './../hooks/useOutsideClick';
+import useOutsideClick from '../hooks/useOutsideClick';
 
 const Navbar = () => {
 	const ref = useRef(null);
