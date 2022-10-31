@@ -88,7 +88,7 @@ export default function Home() {
 			name: "binance",
 			chainId,
 		});
-		console.log(web3provider);
+		// console.log(web3provider);
 
 		setIsLoading(true);
 		if (isAuthenticated && email) {
