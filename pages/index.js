@@ -116,6 +116,7 @@ export default function Home() {
 		const slippageTolerance = new Percent("50", "1000");
 		const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw;
 		// console.log(trade.executionPrice.toSignificant(6), "execution price")
+		// console.log(amountOutMin)
 		const amountIn = usdAmount;
 		const path = [USDT.address, YLT.address];
 		const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
