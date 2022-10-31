@@ -1,4 +1,4 @@
-import {useState, useRef} from "react";
+import {useState, useRef, useEffect} from "react";
 import { Scrolling } from "../components/Scrolling";
 import CurrencyDropdown from "../components/CurrencyDropdown";
 import "react-dropdown/style.css";
@@ -47,8 +47,10 @@ export default function Home() {
 	const [email, setEmail] = useState("");
 	const [rate, setRate] = useState(rates[0]);
 	const [ylt, setYlt] = useState(0);
+	const [yltBalance, setYltBalance] = useState(0);
+	const [usdtBalance, setUsdtBalance] = useState(0);
 	const [isLoading, setIsLoading] = useState(false);
-	const { user, isAuthenticated, Moralis } = useMoralis();
+	const { user, isAuthenticated, Moralis, account } = useMoralis();
 
 
 	const addEmail = async () => {
@@ -198,6 +200,39 @@ export default function Home() {
 		setSelectedCurrency(found);
 	};
 
+	const getBalance = async () => {
+		const YLTContract = new ethers.Contract(
+			YLTtokenAddress,
+			[
+				"function balanceOf(address tokenOwner) external view returns (uint)",
+			],
+			web3provider,
+		);
+		const balance = await YLTContract.balanceOf(account);
+		setYltBalance(balance.toString() / 10 ** 18);
+
+		const USDTContract = new ethers.Contract(
+			USDTtokenAddress,
+			[
+				'function balanceOf(address account) external view returns (uint256)'
+			],
+			web3provider,
+		)
+		const usdtBalance = await USDTContract.balanceOf(account);
+		setUsdtBalance(usdtBalance.toString() / 10 ** 18);
+
+	}
+
+	useEffect(() => {
+		if (isAuthenticated) {
+			getBalance();
+		}
+	}, [isAuthenticated]);
+
+	useEffect(() => {
+			changeRate();
+	}, []);
+
 	// stripe payment initiator
 	const stripePaymentInit = () => {
 		console.log("initiated", process.env.NEXT_PUBLIC_SERVER_URL);
@@ -242,12 +277,20 @@ export default function Home() {
 					{/* Inner Container */}
 					<div className="relative text-5xl flex flex-col mb-7">
 						<div className="w-full relative">
-							<CurrencyDropdown
-								options={currencies}
-								selected={selectedCurrency}
-								onChange={changeCurrentCurrency}
-								className="absolute top-3 right-5"
-							/>
+							<div className="absolute right-5 top-2/4 -translate-y-2/4 flex flex-col items-end">
+								<CurrencyDropdown
+									options={currencies}
+									selected={selectedCurrency}
+									onChange={changeCurrentCurrency}
+								/>
+								{
+									selectedCurrency.id !== 2 && (
+										<p className="text-sm mt-4">
+											Balance: {usdtBalance.toFixed(2)}
+										</p>
+									)
+								}
+							</div>
 							<input
 								type="number"
 								placeholder="Enter amount"
@@ -261,7 +304,15 @@ export default function Home() {
 						</div>
 						{/* Rest Inputs */}
 						<div className="w-full relative">
-							<Logo className="absolute right-5 h-12 w-12 top-2/4 -translate-y-2/4 fill-black" />
+							<div className="absolute right-5 top-2/4 -translate-y-2/4 flex flex-col items-end">
+								<div className=" py-1.5 px-2.5 w-[134px] flex items-center rounded-3xl bg-[#C3EB9B]">
+									<Logo className="h-6 w-6 mr-1.5" />
+									<span className="text-2xl">YLT</span>
+								</div>
+								<p className="text-sm mt-4">
+									Balance: {yltBalance.toFixed(2)}
+								</p>
+							</div>
 							<input
 								type="number"
 								placeholder="YLT Token Amount"
