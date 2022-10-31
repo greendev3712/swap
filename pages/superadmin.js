@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Scrolling } from "../components/Scrolling";
 import CurrencyDropdown from "../components/CurrencyDropdown";
 import "react-dropdown/style.css";
@@ -42,10 +42,7 @@ import { BigNumber, ethers } from "ethers";
 
 
 const chainId = ChainId.TESTNET;
-const provider = new ethers.providers.JsonRpcProvider(
-    "https://bsctestapi.terminet.io/rpc",
-    { name: "binance", chainId: chainId }
-);
+const provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
 
 const currencies = [
     { id: 1, title: "USDT", image: USDTLogo },
@@ -55,7 +52,8 @@ const currencies = [
 export default function Home() {
     const validateClassNameRef = useRef('');
     const [selectedCurrency, setSelectedCurrency] = useState(currencies[0]);
-    const [usdAmount, setUsdAmount] = useState("");
+    const [token_A_value, setToken_A_value] = useState(0)
+    const [token_B_value, setToken_B_value] = useState("")
     const [walletAddress, setWalletAddress] = useState("");
     const [email, setEmail] = useState("");
     const [rate, setRate] = useState(rates[0]);
@@ -68,14 +66,13 @@ export default function Home() {
     /*------------------------------ */
     async function addLiquidity() {
         try {
-            const web3provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
             const accounts = await ethereum.request({
                 method: 'eth_requestAccounts',
             });
             console.log(accounts)
             const to = accounts[0]
-            await web3provider.send('eth_requestAccounts', []);
-            let metaSigner = web3provider.getSigner(to);
+            await provider.send('eth_requestAccounts', []);
+            let metaSigner = provider.getSigner(to);
             console.log(metaSigner)
 
             // factory contract
@@ -110,6 +107,7 @@ export default function Home() {
                 "0xCc7aDc94F3D80127849D2b41b6439b7CF1eB4Ae0",
                 [
                     "function addLiquidity(address tokenA, address tokenB, uint amountADesired, uint amountBDesired, uint amountAMin, uint amountBMin, address to, uint deadline) external returns (uint amountA, uint amountB, uint liquidity)",
+                    "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
                 ],
                 metaSigner
             );
@@ -136,21 +134,27 @@ export default function Home() {
 
             } else {
                 console.log("first")
-                await token1.approve(router.address, 100);
-                await token2.approve(router.address, 1);
 
-                await router.addLiquidity(
+                let a = await token1.approve(router.address, token_A_value);
+                console.log(a.hash)
+                let txT_A = await isTransactionMined(a.hash)
+                console.log(a, txT_A)
+                let b = await token2.approve(router.address, token_B_value);
+                let txT_B = await isTransactionMined(b.hash)
+                console.log(b, txT_B)
+                let liq = await router.addLiquidity(
                     token_A_address,
                     token_B_address,
-                    100,
-                    1,
-                    100,
-                    1,
+                    token_A_value,
+                    token_B_value,
+                    token_A_value,
+                    token_B_value,
                     to,
                     Math.floor(Date.now() / 1000) + 60 * 10
                 );
+                console.log(liq)
                 // console.log(Pair.balanceOf(to))
-                
+
             }
 
 
@@ -178,39 +182,50 @@ export default function Home() {
             console.log(err)
         }
     }
+
+    // ----
+    const isTransactionMined = async (transactionHash) => {
+        const txReceipt = await provider.getTransactionReceipt(transactionHash);
+        if (txReceipt && txReceipt.blockNumber) {
+            return txReceipt;
+        }
+    }
+
+    // --------------------------------
+    useEffect(() => {
+        fetchPair()
+    }, [token_A_value])
+
+    async function fetchPair() {
+        const provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
+        const accounts = await ethereum.request({
+            method: 'eth_requestAccounts',
+        });
+        console.log(accounts)
+        const to = accounts[0]
+        await provider.send('eth_requestAccounts', []);
+        let metaSigner = provider.getSigner(to);
+        // router 
+        const router = new ethers.Contract(
+            "0xCc7aDc94F3D80127849D2b41b6439b7CF1eB4Ae0",
+            [
+                "function addLiquidity(address tokenA, address tokenB, uint amountADesired, uint amountBDesired, uint amountAMin, uint amountBMin, address to, uint deadline) external returns (uint amountA, uint amountB, uint liquidity)",
+                "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
+            ],
+            metaSigner
+        );
+        if (token_A_value && token_B_address != "") {
+            console.log(token_A_value, [token_A_address, token_B_address])
+            let amountOut = await router.getAmountsOut(token_A_value, [token_A_address, token_B_address])
+            let yourNumber0 = parseInt(amountOut[0]._hex, 16);
+            let yourNumber1 = parseInt(amountOut[1]._hex, 16);
+            console.log(amountOut)
+            console.log(yourNumber0, yourNumber1)
+            setToken_B_value(yourNumber1)
+
+        }
+    }
     /*------------------------------ */
-
-    const changeRate = async () => {
-        const chainId = 97;
-        const provider = new ethers.providers.JsonRpcProvider(
-            "https://bsctestapi.terminet.io/rpc",
-            { name: "binance", chainId: chainId }
-        );
-
-        const YLTtokenAddress = "0x8e0B7Ced8867D512C75335883805cD564c343cB9";
-        const USDTtokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd";
-        const YLT = await Fetcher.fetchTokenData(
-            chainId,
-            YLTtokenAddress,
-            provider
-        );
-        const USDT = await Fetcher.fetchTokenData(
-            chainId,
-            USDTtokenAddress,
-            provider
-        );
-        const pair = await Fetcher.fetchPairData(YLT, USDT, provider);
-        const route = new Route([pair], USDT);
-        const trade = new Trade(
-            route,
-            new TokenAmount(USDT, 10e17 * 1),
-            TradeType.EXACT_INPUT
-        );
-        let tempval = rate
-        tempval.rate = `$1/${route.midPrice.toSignificant(2)}ylt`
-        console.log(tempval)
-        setRate({ ...tempval })
-    };
 
     const validateWalletAddress = (e) => {
         setWalletAddress(e.target.value);
@@ -224,15 +239,7 @@ export default function Home() {
         }
     };
 
-    const changeCurrentCurrency = (id) => {
-        const found = currencies.find((currency) => currency.id === id);
 
-        setSelectedCurrency(found);
-    };
-
-    const revertInputsHandler = () => {
-        setReverted(!reverted);
-    }
 
     // stripe payment initiator
 
@@ -247,14 +254,7 @@ export default function Home() {
 
             {/* Input Container */}
             <div className="max-w-screen-sm w-full bg-white relative flex flex-col border-2 border-[#90e040] rounded-2xl pt-3 pb-5 px-2.5">
-                <button
-                    type="button"
-                    className="h-4 bg-transparent self-end mb-4"
-                    onClick={changeRate}
-                >
-                    {rate.rate} - update rate{" "}
-                    <span className="text-blue-500">&#8635;</span>
-                </button>
+
                 {/* Inner Container */}
                 <div className="relative text-5xl flex flex-col mb-7">
                     <div className="w-full relative">
@@ -268,10 +268,10 @@ export default function Home() {
                         <input
                             type="number"
                             placeholder="Enter amount"
-                            value={usdAmount}
+                            value={token_A_value}
                             onChange={(e) => {
-                                setUsdAmount(e.target.value);
-                                setYlt(e.target.value * rate.ylt);
+                                setToken_A_value(e.target.value)
+
                             }}
                             className="form-input h-[100px] text-2xl sm:text-5xl"
                         />
@@ -286,17 +286,16 @@ export default function Home() {
                         <input
                             type="number"
                             placeholder="Enter amount"
-                            value={usdAmount}
+                            value={token_B_value}
                             onChange={(e) => {
-                                setUsdAmount(e.target.value);
-                                setYlt(e.target.value * rate.ylt);
+                                setToken_B_value(e.target.value)
                             }}
                             className="form-input h-[100px] text-2xl sm:text-5xl"
                         />
                     </div>
                     {/* Swap Icon */}
                     <button
-                        onClick={revertInputsHandler}
+
                         className="w-14 h-14 z-[1] text-[#90e040] bg-[#f6f6f7] -translate-x-2/4 -translate-y-2/4 text-2xl border border-white rounded-full absolute top-2/4 left-2/4"
                     >
                         &#8645;
