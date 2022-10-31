@@ -42,7 +42,10 @@ import { BigNumber, ethers } from "ethers";
 
 
 const chainId = ChainId.TESTNET;
-const provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
+const provider = new ethers.providers.JsonRpcProvider(
+    "https://bsctestapi.terminet.io/rpc",
+    { name: "binance", chainId: chainId }
+);
 
 const currencies = [
     { id: 1, title: "USDT", image: USDTLogo },
@@ -197,7 +200,6 @@ export default function Home() {
     }, [token_A_value])
 
     async function fetchPair() {
-        const provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
         const accounts = await ethereum.request({
             method: 'eth_requestAccounts',
         });
