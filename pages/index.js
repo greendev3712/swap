@@ -1,4 +1,4 @@
-import {useState, useRef} from "react";
+import { useState, useRef, useEffect } from 'react';
 import { Scrolling } from "../components/Scrolling";
 import CurrencyDropdown from "../components/CurrencyDropdown";
 import "react-dropdown/style.css";
@@ -45,7 +45,7 @@ export default function Home() {
 	const [usdAmount, setUsdAmount] = useState("");
 	const [walletAddress, setWalletAddress] = useState("");
 	const [email, setEmail] = useState("");
-	const [rate, setRate] = useState(rates[0]);
+	const [rate, setRate] = useState('');
 	const [ylt, setYlt] = useState(0);
 	const [yltBalance, setYltBalance] = useState(0);
 	const [usdtBalance, setUsdtBalance] = useState(0);
@@ -141,6 +141,8 @@ export default function Home() {
 		// transaction to carry
 		const tx = await pancakeswap.swapExactTokensForTokens(BigInt(amountIn *10e17) , amountOutMin[2], path, to, deadline)
 		console.log(tx, tx.hash);
+		await tx.wait();
+		await getBalance();
 		setIsLoading(false);
 		// MetaMask requires requesting permission to connect users accounts
 		// The MetaMask plugin also allows signing transactions to
@@ -173,10 +175,9 @@ export default function Home() {
       new TokenAmount(USDT, 10e17 * 1),
       TradeType.EXACT_INPUT
 	);
-		let tempval = rate
-		tempval.rate = `$1/${route.midPrice.toSignificant(2)}ylt`
-		console.log(tempval)
-		setRate({...tempval})
+
+		const currentRate = route.midPrice.toSignificant(2);
+		setRate(currentRate);
 	};
 
 	const validateWalletAddress = (address) => {
@@ -284,7 +285,7 @@ export default function Home() {
 									onChange={changeCurrentCurrency}
 								/>
 								{
-									selectedCurrency.id !== 2 && (
+									isAuthenticated && selectedCurrency.id !== 2 && (
 										<p className="text-sm mt-4">
 											Balance: {usdtBalance.toFixed(2)}
 										</p>
@@ -297,7 +298,7 @@ export default function Home() {
 								value={usdAmount}
 								onChange={(e) => {
 									setUsdAmount(e.target.value);
-									setYlt(e.target.value * rate.ylt);
+									setYlt(e.target.value * rate);
 								}}
 								className="form-input h-[100px] text-2xl sm:text-3xl"
 							/>
@@ -309,9 +310,11 @@ export default function Home() {
 									<Logo className="h-6 w-6 mr-1.5" />
 									<span className="text-2xl">YLT</span>
 								</div>
-								<p className="text-sm mt-4">
-									Balance: {yltBalance.toFixed(2)}
-								</p>
+								{isAuthenticated && (
+									<p className="text-sm mt-4">
+										Balance: {yltBalance.toFixed(2)}
+									</p>
+								)}
 							</div>
 							<input
 								type="number"
@@ -319,7 +322,7 @@ export default function Home() {
 								value={ylt}
 								onChange={(e) => {
 									setYlt(e.target.value);
-									setUsdAmount(e.target.value / rate.ylt);
+									setUsdAmount(e.target.value / rate);
 								}}
 								className="form-input mt-2 w-full h-[100px] text-2xl sm:text-3xl"
 							/>
@@ -355,14 +358,16 @@ export default function Home() {
 							className="form-input text-lg font-normal"
 						/>
 					)}
-					<button
-						type="button"
-						className="h-4 bg-transparent self-end mt-4"
-						onClick={changeRate}
-					>
-						{rate.rate} - update rate{" "}
-						<span className="text-blue-500">&#8635;</span>
-					</button>
+					{rate > 0 && (
+						<button
+							type="button"
+							className="h-4 bg-transparent self-end mt-4"
+							onClick={changeRate}
+						>
+							1$/{rate} - update rate{" "}
+							<span className="text-blue-500">&#8635;</span>
+						</button>
+					)}
 					{selectedCurrency.id === 1 ? (
 						<button
 							onClick={initSwap}
