@@ -13,8 +13,7 @@ export default async function CreateStripeSession(req, res) {
   if (req.method === 'POST') {
     const { item } = req.body;
 
-    console.log(item);
-    const redirectURL = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://stripe-checkout-next-js-demo.vercel.app';
+    const redirectURL = "https://swap.yourlifegames.com";
 
     if (item.address.length < 10 || item.email.length < 3 || item.price.length == 0 || item.amount <= 0)
       res.status(500).json({ msg: "Internal Server Error!!!" });

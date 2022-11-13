@@ -53,7 +53,7 @@ export const CONTRACTS_BY_NETWORK: {
   }
 }
 
-export const currentNetwork: number = parseInt(process.env.NEXT_APP_NETWORK_TEST_ID);
+export const currentNetwork: number = parseInt("97");
 
 export function getContractInfo(
   name: string,
