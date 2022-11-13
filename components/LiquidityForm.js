@@ -29,7 +29,7 @@ if (isBrowser()) {
     })
 }
 
-export default function LiquidityForm() {
+export default function LiquidityForm({ setIsLoading }) {
     const validateClassNameRef = useRef('');
     const router = useRouter();
     const [token_A_value, setToken_A_value] = useState(0.0)
@@ -47,6 +47,7 @@ export default function LiquidityForm() {
     }, [isAuthenticated]);
     /*------------------------------ */
     async function addLiquidity() {
+        setIsLoading(true)
         try {
             const accounts = await ethereum.request({
                 method: 'eth_requestAccounts',
@@ -83,7 +84,7 @@ export default function LiquidityForm() {
             const factoryAddress = await router.factory();
             const PancakeFactoryContract = new ethers.Contract(factoryAddress, PancakeFactoryABI, metaSigner);
             const pairAddress = await PancakeFactoryContract.getPair(token_A_address, token_B_address);
-            
+
             let value_A = ethers.utils.parseUnits(Number(token_A_value).toString(), 18);
             let value_B = ethers.utils.parseUnits(Number(token_B_value).toString(), 18);
             let a = await token1.approve(router.address, value_A);
@@ -100,6 +101,9 @@ export default function LiquidityForm() {
                 Math.floor(Date.now() / 1000) + 60 * 10
             );
             console.log(liq);
+            setTimeout(() => {
+                location.reload()
+            }, 1000)
         } catch (err) {
             console.log(err)
         }
@@ -125,14 +129,14 @@ export default function LiquidityForm() {
     }, [token_A_value])
 
     const getBalance = async () => {
-        const accounts = await ethereum.request({method: 'eth_requestAccounts'});
-    
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+
         const YLTContract = new ethers.Contract(YLTtokenAddress, YLTABI, web3provider);
 
         let balance = await YLTContract.balanceOf(accounts[0]);
         balance = ethers.utils.formatEther(balance)
         setYltBalance(parseFloat(balance).toFixed(2));
-     };
+    };
 
     async function fetchPair() {
         const accounts = await ethereum.request({
@@ -148,7 +152,7 @@ export default function LiquidityForm() {
             IUniswapV2Router02ABI.abi,
             metaSigner
         );
-        if (token_A_value && token_B_address != "") {        
+        if (token_A_value && token_B_address != "") {
             const factoryAddress = await router.factory();
             const PancakeFactoryContract = new ethers.Contract(factoryAddress, PancakeFactoryABI, metaSigner);
             const pairAddress = await PancakeFactoryContract.getPair(token_A_address, token_B_address);
@@ -198,8 +202,7 @@ export default function LiquidityForm() {
                         placeholder="Enter amount"
                         value={token_A_value}
                         onChange={(e) => {
-                            if (e.target.value <= 0)
-                            {
+                            if (e.target.value <= 0) {
                                 e.target.value = 0;
                                 return;
                             }
@@ -221,8 +224,7 @@ export default function LiquidityForm() {
                         placeholder="Enter amount"
                         value={token_B_value}
                         onChange={(e) => {
-                            if (e.target.value <= 0)
-                            {
+                            if (e.target.value <= 0) {
                                 e.target.value = 0;
                                 return;
                             }

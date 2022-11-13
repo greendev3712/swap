@@ -281,8 +281,8 @@ export default function SwapForm({ setIsLoading }) {
     address: '',
     amount: ''
   });
-
-  const publishableKey = process.env.NEXT_PUBLIC_STRIPE_TEST_PUBLIC_KEY;
+  const PUBLIC_KEY = "pk_test_M0aaaj742NJFo9aMVgP3zDAa";
+  const publishableKey = PUBLIC_KEY;
   const stripePromise = loadStripe(publishableKey);
 
   const createCheckoutSession = async => {

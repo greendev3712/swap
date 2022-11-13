@@ -2,12 +2,34 @@ import React, { useState, useRef, useEffect } from "react";
 import Logo from "../assets/Logoemblem.svg";
 import Link from "next/link";
 import Account from "./Account";
-import LINKS from "../constants/menu";
 import Burger from '../assets/burger.svg';
 import Cross from '../assets/cross.svg';
 import EventsModal from "./EventsModal";
 import { useMoralis } from "react-moralis";
 
+const navLinks = [
+	{
+		id: 1,
+		title: "Marketplace",
+		url: "https://nft.yourlifegames.com/",
+		icon: <MarketPlaceSVG />,
+	},
+	{
+		id: 2,
+		title: "My account",
+		url: "https://nft.yourlifegames.com/myaccount",
+	},
+	{
+		id: 3,
+		title: "Collections",
+		url: "https://nft.yourlifegames.com/collections",
+	},
+	{
+		id: 4,
+		title: "Chat",
+		url: "https://nft.yourlifegames.com/chat",
+	},
+];
 
 const Navbar = ({ setIsLoading }) => {
 	const ref = useRef(null);
@@ -60,7 +82,7 @@ const Navbar = ({ setIsLoading }) => {
 					<Burger className="w-10 h-2" />
 				</button>
 				<div className="flex">
-					{LINKS.map((link) => {
+					{navLinks.map((link) => {
 						<Link key={link.id} href={`${link.url}${tokenURI}`}>
 							<a className="flex text-md text-[#242424] uppercase underline underline-offset-8 underline-color decoration-[#90E040] mr-4">
 								{link.icon && (

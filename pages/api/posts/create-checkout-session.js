@@ -1,4 +1,5 @@
-const stripe = require("stripe")(process.env.NEXT_PUBLIC_STRIPE_TEST_PRIVATE_KEY);
+const PRIVATE_KEY = "sk_test_rXXPihdgV35n9hWedz233wVN";
+const stripe = require("stripe")(PRIVATE_KEY);
 const Moralis = require("moralis-v1/node");
 const crypto = require('crypto');
 const CryptoJS = require('crypto-js');
@@ -10,14 +11,14 @@ export default async function CreateStripeSession(req, res) {
   }
 
   if (req.method === 'POST') {
-    const {item} = req.body;
+    const { item } = req.body;
 
     console.log(item);
     const redirectURL = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://stripe-checkout-next-js-demo.vercel.app';
 
-    if (item.address.length < 10 || item.email.length < 3 || item.price.length == 0 || item.amount<= 0) 
-      res.status(500).json({msg: "Internal Server Error!!!"});
-    
+    if (item.address.length < 10 || item.email.length < 3 || item.price.length == 0 || item.amount <= 0)
+      res.status(500).json({ msg: "Internal Server Error!!!" });
+
 
 
     const transformedItem = {
@@ -44,7 +45,7 @@ export default async function CreateStripeSession(req, res) {
       }
     });
 
-    Moralis.start({serverUrl: env.APP_SERVER_URL, appId: env.APP_ID}).then(() => {
+    Moralis.start({ serverUrl: env.APP_SERVER_URL, appId: env.APP_ID }).then(() => {
       const data = {
         email: item.email,
         address: item.address,
@@ -54,11 +55,11 @@ export default async function CreateStripeSession(req, res) {
       }
       console.log(data);
       Moralis.Cloud.run("saveTempFile", data)
-    }) 
+    })
 
 
-      res.status(200).json({id: session.id});
-    
+    res.status(200).json({ id: session.id });
+
 
 
   }

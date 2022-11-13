@@ -46,7 +46,7 @@ export default function Home() {
 				)}
 
 				{val_radioButtonGroup == 'swap' && <SwapForm setIsLoading={setIsLoading} />}
-				{val_radioButtonGroup == 'liquidity' && <LiquidityForm />}
+				{val_radioButtonGroup == 'liquidity' && <LiquidityForm setIsLoading={setIsLoading} />}
 
 				{/* Footer */}
 				<Footer />
