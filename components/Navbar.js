@@ -82,7 +82,7 @@ const Navbar = ({ setIsLoading }) => {
 					<Burger className="w-10 h-2" />
 				</button>
 				<div className="flex">
-					{navLinks.map((link) => {
+					{navLinks.map((link) => (
 						<Link key={link.id} href={`${link.url}${tokenURI}`}>
 							<a className="flex text-md text-[#242424] uppercase underline underline-offset-8 underline-color decoration-[#90E040] mr-4">
 								{link.icon && (
@@ -93,7 +93,7 @@ const Navbar = ({ setIsLoading }) => {
 								{link.title}
 							</a>
 						</Link>
-					})}
+					))}
 				</div>
 				{/* user account*/}
 				<div className=" relative flex items-center">
