@@ -1,10 +1,10 @@
 import MarketPlaceSVG from '/assets/marketplace.svg';
 
-const menuLinks =  [
+const menuLinks = [
 	{
 		id: 1,
 		title: "Marketplace",
-		url: "https://nft.yourlifegames.com/",
+		url: "https://nft.yourlifegames.com",
 		icon: <MarketPlaceSVG />,
 	},
 	{

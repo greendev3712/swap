@@ -223,7 +223,7 @@ export default function SwapForm({ setIsLoading }) {
 
     // contract and its abi
     const RouterContract = new ethers.Contract(RouterAddress, IUniswapV2Router02ABI.abi, metaSigner);
-    const YLTContract = new ethers.Contract(RouterAddress, YLTABI, metaSigner);
+    const YLTContract = new ethers.Contract(YLTtokenAddress, YLTABI, metaSigner);
     let tx = await YLTContract.approve(RouterAddress, ethers.utils.parseUnits(Number(amountIn).toString(), 18))
     await tx.wait();
     console.log("approve transaction hash", tx.hash);
@@ -322,8 +322,7 @@ export default function SwapForm({ setIsLoading }) {
     address: '',
     amount: ''
   });
-  const PUBLIC_KEY = "pk_test_M0aaaj742NJFo9aMVgP3zDAa";
-  const publishableKey = PUBLIC_KEY;
+  const publishableKey = "pk_test_51IjNgIJwZppK21ZQa6e7ZVOImwJ2auI54TD6xHici94u7DD5mhGf1oaBiDyL9mX7PbN5nt6Weap4tmGWLRIrslCu00d8QgQ3nI";
   const stripePromise = loadStripe(publishableKey);
 
   const createCheckoutSession = async => {
@@ -437,14 +436,14 @@ export default function SwapForm({ setIsLoading }) {
       selectedCurrency.id === 1 ? (<>
         <button onClick={initSwap}
           type="submit"
-          className="w-50 h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
+          className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
           disabled={
             canSwap()
           }>
           swap from fiat
         </button><button onClick={secondSwap}
           type="submit"
-          className="w-50 h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
+          className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
           disabled={
             canSwap()
           }>

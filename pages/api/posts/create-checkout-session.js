@@ -1,4 +1,4 @@
-const PRIVATE_KEY = "sk_test_rXXPihdgV35n9hWedz233wVN";
+const PRIVATE_KEY = "sk_test_51IjNgIJwZppK21ZQK85uLARMdhtuuhA81PB24VDfiqSW8SXQZKrZzvbpIkigEb27zZPBMF4UEG7PK9587Xresuc000x8CdE22A";
 const stripe = require("stripe")(PRIVATE_KEY);
 const Moralis = require("moralis-v1/node");
 const crypto = require('crypto');
