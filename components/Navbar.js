@@ -56,10 +56,10 @@ const Navbar = ({ setIsLoading }) => {
 
 			{/* Navbar Links */}
 			<div className="flex h-full w-full pr-6 sm:pr-12 bg-[#ffffff] rounded-r-xl items-center justify-between white-triangle-reverted with-triangle">
-				<button className="" onClick={openMobileMenuHandler}>
+				<button className="sm: hidden" onClick={openMobileMenuHandler}>
 					<Burger className="w-10 h-2" />
 				</button>
-				<div className="sm:flex">
+				<div className="flex">
 					{LINKS.map((link) => {
 						<Link key={link.id} href={`${link.url}${tokenURI}`}>
 							<a className="flex text-md text-[#242424] uppercase underline underline-offset-8 underline-color decoration-[#90E040] mr-4">
