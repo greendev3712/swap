@@ -9,8 +9,8 @@ export default function Document() {
 					rel="stylesheet"
 				/>
 				<meta charSet="utf-8" />
-				<link rel="shortcut icon" href="../assets/favicon.ico" />
-				<link rel="icon" href="../assets/favicon.ico" />
+				<link rel="shortcut icon" href="/favicon.ico" />
+				<link rel="icon" href="/favicon.ico" />
 				<meta name="theme-color" content="#000000" />
 				<meta name="YourLifeGames NFT MarketPlace" content="" />
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -18,13 +18,13 @@ export default function Document() {
 					rel="icon"
 					type="image/png"
 					sizes="32x32"
-					href="../assets/favicon-32x32_black.png"
+					href="/assets/favicon-32x32_black.png"
 				/>
 				<link
 					rel="icon"
 					type="image/png"
 					sizes="16x16"
-					href="../assets/favicon-16x16_black.png"
+					href="/assets/favicon-16x16_black.png"
 				/>
 				<link
 					href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap"

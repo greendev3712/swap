@@ -2,12 +2,15 @@ import "../styles/globals.css";
 import { MoralisProvider } from "react-moralis";
 import Head from "next/head";
 
-function MyApp({ Component, pageProps }) {
+const APP_ID = "wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp";
+const SERVER_URL = "https://b3o7m8vdspy1.usemoralis.com:2053/server";
 
+function MyApp({ Component, pageProps }) {
 	return (
+		<>
 		<MoralisProvider
-			appId={process.env.NEXT_PUBLIC_APP_ID}
-			serverUrl={process.env.NEXT_PUBLIC_SERVER_URL}
+			appId={APP_ID}
+			serverUrl={SERVER_URL}
 		>
 			<Head>
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -55,6 +58,7 @@ function MyApp({ Component, pageProps }) {
 			</Head>
 			<Component {...pageProps} />
 		</MoralisProvider>
+		</>
 	);
 }
 

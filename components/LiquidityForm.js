@@ -21,6 +21,7 @@ import {
     Currency, currencyEquals, ETHER, WETH
 } from "pancakeswap-v2-testnet-sdk";
 import { BigNumber, ethers } from "ethers";
+import {useRouter} from "next/router";
 
 /*--------------strat-----------------*/
 // import { BigNumber } from '@ethersproject/bignumber'
@@ -42,30 +43,27 @@ import { BigNumber, ethers } from "ethers";
 
 
 const chainId = ChainId.TESTNET;
-const provider = new ethers.providers.JsonRpcProvider(
-    "https://bsctestapi.terminet.io/rpc",
-    { name: "binance", chainId: chainId }
-);
+const provider = new ethers.providers.Web3Provider(window.ethereum, { name: 'binance', chainId })
+// const provider = new ethers.providers.JsonRpcProvider(
+//     "https://bsctestapi.terminet.io/rpc",
+//     {name: "binance", chainId: chainId}
+// );
 
-const currencies = [
-    { id: 1, title: "USDT", image: USDTLogo },
-    { id: 2, title: "USD", image: USDLogo },
-];
-
-export default function Home() {
+export default function LiquidityForm() {
     const validateClassNameRef = useRef('');
-    const [selectedCurrency, setSelectedCurrency] = useState(currencies[0]);
+    const router = useRouter();
     const [token_A_value, setToken_A_value] = useState(0)
     const [token_B_value, setToken_B_value] = useState("")
-    const [walletAddress, setWalletAddress] = useState("");
-    const [email, setEmail] = useState("");
-    const [rate, setRate] = useState(rates[0]);
-    const [ylt, setYlt] = useState(0);
-    const [reverted, setReverted] = useState(false);
-    const { user } = useMoralis();
     const [token_A_address, setToken_A_address] = useState("0x8e0B7Ced8867D512C75335883805cD564c343cB9")
     const [token_B_address, setToken_B_address] = useState('')
 
+    const {user, isAuthenticated} = useMoralis();
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            router.push('/');
+        }
+    }, [isAuthenticated]);
     /*------------------------------ */
     async function addLiquidity() {
         try {
@@ -179,8 +177,6 @@ export default function Home() {
             // const balance = await pair.balanceOf(admin);
 
 
-
-
         } catch (err) {
             console.log(err)
         }
@@ -193,10 +189,11 @@ export default function Home() {
             return txReceipt;
         }
     }
-
     // --------------------------------
     useEffect(() => {
-        fetchPair()
+        if (isAuthenticated) {
+            fetchPair()
+        }
     }, [token_A_value])
 
     async function fetchPair() {
@@ -227,6 +224,7 @@ export default function Home() {
 
         }
     }
+
     /*------------------------------ */
 
     const validateWalletAddress = (e) => {
@@ -241,109 +239,65 @@ export default function Home() {
         }
     };
 
-
-
-    // stripe payment initiator
-
-
     return (
-        // Layout
-        <div className="bg-[#f6f6f7] h-screen w-full relative overflow-x-hidden mx-auto flex flex-col justify-between pt-6 items-center">
-            {/* Main Container */}
-            <Scrolling />
-
-            <Navbar />
-
-            {/* Input Container */}
-            <div className="max-w-screen-sm w-full bg-white relative flex flex-col border-2 border-[#90e040] rounded-2xl pt-3 pb-5 px-2.5">
-
-                {/* Inner Container */}
-                <div className="relative text-5xl flex flex-col mb-7">
-                    <div className="w-full relative">
-                        <input
-                            onChange={(e) => {
-                                setToken_A_address(e.target.value)
-                            }}
-                            value={token_A_address}
-                            placeholder="Enter token1 address"
-                            className="form-input h-[90px] text-2xl sm:text-5xl" />
-                        <input
-                            type="number"
-                            placeholder="Enter amount"
-                            value={token_A_value}
-                            onChange={(e) => {
-                                setToken_A_value(e.target.value)
-
-                            }}
-                            className="form-input h-[100px] text-2xl sm:text-5xl"
-                        />
+        <div
+            className="max-w-screen-sm w-full bg-white relative flex flex-col border-2 border-[#90e040] rounded-2xl pt-3 pb-5 px-2.5 mb-10">
+            {/* Inner Container */}
+            <div className="relative flex flex-col mb-7">
+                <div className="w-full relative mb-4">
+                    <div className="absolute right-5 top-2/4 -translate-y-2/4 flex flex-col items-end">
+                        <div className=" py-1.5 px-2.5 w-[134px] flex items-center rounded-3xl bg-[#C3EB9B]">
+                            <Logo className="h-6 w-6 mr-1.5"/>
+                            <span className="text-2xl">YLT</span>
+                        </div>
+                        {isAuthenticated && (
+                            <p className="text-sm mt-4">
+                                {/*Balance: {yltBalance.toFixed(2)}*/}
+                                Balance: 1231
+                            </p>
+                        )}
                     </div>
-                    <div className="w-full relative">
-                        <input
-                            onChange={(e) => {
-                                setToken_B_address(e.target.value)
-                            }}
-                            placeholder="Enter token2 address"
-                            className="form-input h-[100px] text-2xl sm:text-5xl" />
-                        <input
-                            type="number"
-                            placeholder="Enter amount"
-                            value={token_B_value}
-                            onChange={(e) => {
-                                setToken_B_value(e.target.value)
-                            }}
-                            className="form-input h-[100px] text-2xl sm:text-5xl"
-                        />
-                    </div>
-                    {/* Swap Icon */}
-                    <button
-
-                        className="w-14 h-14 z-[1] text-[#90e040] bg-[#f6f6f7] -translate-x-2/4 -translate-y-2/4 text-2xl border border-white rounded-full absolute top-2/4 left-2/4"
-                    >
-                        &#8645;
-                    </button>
-                    {/* Rest Inputs */}
-
-                </div>
-
-                <label
-                    htmlFor="walletAddress"
-                    className="mt-5 w-[97%] mx-auto text-gray-500 text-xs"
-                >
-                    Your wallet must be BEP-20 compatible
-                </label>
-                <input
-                    id="walletAddress"
-                    type="text"
-                    placeholder="Enter your crypto wallet address"
-                    value={walletAddress}
-                    onChange={(e) => validateWalletAddress(e)}
-                    className={`form-input font-normal text-lg ${walletAddress.length > 0 ? validateClassNameRef.current : ''
-                        }`}
-                />
-                {!user && (
                     <input
-                        type="email"
-                        placeholder="Enter your email address"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="form-input text-lg font-normal"
+                        type="number"
+                        placeholder="Enter amount"
+                        value={token_A_value}
+                        onChange={(e) => {
+                            setToken_A_value(e.target.value)
+
+                        }}
+                        className="form-input h-[100px] text-2xl sm:text-3xl"
                     />
-                )}
-                <button
-                    onClick={addLiquidity}
-                    type="submit"
-                    className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7"
-                >
-                    add liquidity
-                </button>
-
-
-                {/* End Input Container */}
+                </div>
+                <div className="w-full relative">
+                    <input
+                        onChange={(e) => {
+                            setToken_B_address(e.target.value)
+                        }}
+                        placeholder="Enter token2 address"
+                        className="form-input h-[100px] text-2xl sm:text-3xl"/>
+                    <input
+                        type="number"
+                        placeholder="Enter amount"
+                        value={token_B_value}
+                        onChange={(e) => {
+                            setToken_B_value(e.target.value)
+                        }}
+                        className="form-input h-[100px] text-2xl sm:text-3xl"
+                    />
+                </div>
             </div>
-
-            {/* Footer */}
-            <Footer />
+            { token_A_value > 0 && token_B_value > 0 && (
+                <div>
+                    YLT per USDT - {token_A_value / token_B_value}
+                </div>
+            )}
+            <button
+                onClick={addLiquidity}
+                type="submit"
+                className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7"
+            >
+                add liquidity
+            </button>
         </div>
     );
 }
