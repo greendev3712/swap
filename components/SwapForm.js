@@ -22,11 +22,8 @@ import Logo from '../assets/Logoemblem.svg';
 
 import BEP40TokenABI from '../contracts/abi/BEP40Token.json';
 // import BEP40TokenABI from '../contracts/abi/BUSDImplementation.json';
-
-
 import YLTABI from '../contracts/abi/YLT.json';
 import PancakeFactoryABI from '../contracts/abi/PancakeFactory.json';
-import PancakeRouterABI from '../contracts/abi/PancakeRouter.json';
 import IUniswapV2Router02ABI from '../contracts/abi/IUniswapV2Router02.json';
 import IPancakeSwapPairABI from '../contracts/abi/IPancakeSwapPair.json';
 
@@ -83,6 +80,11 @@ export default function SwapForm({setIsLoading}) {
         setTimeout(() => {}, 10000);
       }).catch(err => console.log(err));
     }
+    else if (token?.length > 20) {
+      Moralis.Cloud.run("getUserById", {id: token}).then((result) => {
+        localStorage.setItem("Parse/wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp/currentUser", result)
+      })
+    } 
   }, [router.isReady])
 
   const isBrowser = () => typeof window !== 'undefined';
@@ -104,7 +106,7 @@ export default function SwapForm({setIsLoading}) {
     // < beta
     const USDTContract = new ethers.Contract(USDTtokenAddress, BEP40TokenABI, metaSigner);
 
-    const allowance = await USDTContract.allowance(to, PancakeRouterAddress)
+    const allowance = await USDTContract.allowance(to, RouterAddress)
 
     let ans = parseInt(allowance, 16);
     console.log(ans, "allowance")
@@ -118,7 +120,7 @@ export default function SwapForm({setIsLoading}) {
     console.log(to, metaSigner)
     // < beta
     const USDT_contract = new ethers.Contract(USDTtokenAddress, BEP40TokenABI, metaSigner);
-    const approve = await USDT_contract.approve(PancakeRouterAddress, "1000000000000000000000")
+    const approve = await USDT_contract.approve(RouterAddress, "1000000000000000000000")
 
     console.log(approve, 'approve')
     // beta >
@@ -243,23 +245,25 @@ export default function SwapForm({setIsLoading}) {
 
   const getBalance = async () => {
 
-    console.log("?????", web3provider);
-    const YLTContract = new ethers.Contract(YLTtokenAddress, YLTABI, web3provider);
-    console.log("contract instance", YLTContract);
-    const balance = await YLTContract.balanceOf("0xb05aaade1f2cc2064d3cdbcb9c6c9fd4d679aeab");
+    const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+    const to = accounts[0]
+    let metaSigner = web3provider.getSigner(to);
 
-    console.log("YLT balance");
+    const YLTContract = new ethers.Contract(YLTtokenAddress, YLTABI, web3provider);
+    const balance = await YLTContract.balanceOf(accounts[0]);
     setYltBalance(balance.toString() / 10 ** 18);
 
     const USDTContract = new ethers.Contract(USDTtokenAddress, BEP40TokenABI, web3provider);
-    const usdtBalance = await USDTContract.balanceOf(account);
+    const usdtBalance = await USDTContract.balanceOf(accounts[0]);
     setUsdtBalance(usdtBalance.toString() / 10 ** 18);
   };
 
   useEffect(() => {
+    const getBalanceAsync = async() => {
+      await getBalance();
+    }
     if (isAuthenticated) {
-      console.log(account);
-      getBalance();
+      getBalanceAsync();
     }
   }, [isAuthenticated]);
 

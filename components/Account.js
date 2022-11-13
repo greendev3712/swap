@@ -17,14 +17,14 @@ export default function Account({setIsLoading, openEventsModal, onAuth}) {
 
   const profilePicture = user ?. attributes.profile_picture;
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      const auth = async () => {
-        await onAuth();
-      };
-      auth();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     const auth = async () => {
+  //       await onAuth();
+  //     };
+  //     auth();
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (isAuthenticated) {

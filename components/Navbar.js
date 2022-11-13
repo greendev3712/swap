@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Logo from "../assets/Logoemblem.svg";
 import Link from "next/link";
 import Account from "./Account";
@@ -13,7 +13,8 @@ const Navbar = ({ setIsLoading }) => {
 	const ref = useRef(null);
 	const [openMobileMenu, setOpenMobileMenu] = useState(false);
 	const [eventsModalOpen, setEventsModalOpen] = useState(false);
-	const { authenticate } = useMoralis();
+	const [tokenURI, setTokenURI] = useState("")
+	const { authenticate, isAuthenticated, user } = useMoralis();
 
 	const authUser = async () => {
 		await authenticate({
@@ -40,6 +41,10 @@ const Navbar = ({ setIsLoading }) => {
 		setEventsModalOpen(false);
 	}
 
+	useEffect(() => {
+		setTokenURI(`?token=${user?.id}`)
+	}, [isAuthenticated])
+
 	return (
 		<div className="w-full px-3 h-20 text-center relative flex shrink-0 items-center">
 			{/* logo container */}
@@ -55,8 +60,8 @@ const Navbar = ({ setIsLoading }) => {
 					<Burger className="w-10 h-2" />
 				</button>
 				<div className="hidden sm:flex">
-					{LINKS.map((link) => (
-						<Link key={link.id} href={link.url}>
+					{LINKS.map((link) => {
+						<Link key={link.id} href={`${link.url}${tokenURI}`}>
 							<a className="flex text-md text-[#242424] uppercase underline underline-offset-8 underline-color decoration-[#90E040] mr-4">
 								{link.icon && (
 									<span className="mr-2">
@@ -66,7 +71,7 @@ const Navbar = ({ setIsLoading }) => {
 									{link.title}
 							</a>
 						</Link>
-					))}
+					})}
 				</div>
 				{/* user account*/}
 				<div className=" relative flex items-center">

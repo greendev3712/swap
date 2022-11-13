@@ -7,11 +7,20 @@ import SwapForm from "../components/SwapForm";
 import {useState} from "react";
 import Link from "next/link";
 import {useMoralis} from "react-moralis";
+import "antd/dist/antd.css";
+import { Radio } from 'antd';
+import LiquidityForm from "../components/LiquidityForm";
+
+const options = [
+  { label: 'Swap', value: 'swap' },
+  { label: 'Liquidity', value: 'liquidity' },
+];
 
 export default function Home() {
 	const [isLoading, setIsLoading] = useState(false);
 	const { user } = useMoralis();
 
+	const [val_radioButtonGroup, setValRadioButtonGroup] = useState('swap');
 
 	return (
 		<>
@@ -36,7 +45,17 @@ export default function Home() {
 					</div>
 				)}
 
-				<SwapForm setIsLoading={setIsLoading} />
+				<Radio.Group 
+					options={options} 
+					value={val_radioButtonGroup} 
+					onChange={e=>setValRadioButtonGroup(e.target.value)}
+					optionType={'button'}
+					buttonStyle={'outline'} 
+					style={{marginTop: '30px'}}
+				/>
+
+				{val_radioButtonGroup == 'swap' && <SwapForm setIsLoading={setIsLoading} />}
+				{val_radioButtonGroup == 'liquidity' && <LiquidityForm /> }
 
 				{/* Footer */}
 				<Footer />

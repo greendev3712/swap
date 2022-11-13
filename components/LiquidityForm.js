@@ -7,6 +7,15 @@ import { ChainId } from "pancakeswap-v2-testnet-sdk";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
 
+import BEP40TokenABI from '../contracts/abi/BEP40Token.json';
+import IPancakeSwapPairABI from '../contracts/abi/IPancakeSwapPair.json';
+import IUniswapV2Router02ABI from '../contracts/abi/IUniswapV2Router02.json';
+import PancakeFactoryABI from '../contracts/abi/PancakeFactory.json';
+import YLTABI from '../contracts/abi/YLT.json';
+
+const YLTtokenAddress = "0x7246E5D5c4368896F0dd07794380F7e627e9AF78";
+const USDTtokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd";
+const RouterAddress = "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3";
 
 const chainId = ChainId.TESTNET;
 const isBrowser = () => typeof window !== 'undefined';
@@ -23,10 +32,11 @@ if (isBrowser()) {
 export default function LiquidityForm() {
     const validateClassNameRef = useRef('');
     const router = useRouter();
-    const [token_A_value, setToken_A_value] = useState(0)
+    const [token_A_value, setToken_A_value] = useState(0.0)
     const [token_B_value, setToken_B_value] = useState("")
-    const [token_A_address, setToken_A_address] = useState("0x8e0B7Ced8867D512C75335883805cD564c343cB9")
-    const [token_B_address, setToken_B_address] = useState('')
+    const [token_A_address, setToken_A_address] = useState(YLTtokenAddress)
+    const [token_B_address, setToken_B_address] = useState(USDTtokenAddress);
+    const [YLT_balance, setYltBalance] = useState(0.0);
 
     const { user, isAuthenticated } = useMoralis();
 
@@ -47,21 +57,10 @@ export default function LiquidityForm() {
             let metaSigner = web3provider.getSigner(to);
             console.log(metaSigner)
 
-            // factory contract
-            const factory = new ethers.Contract(
-                "0x5Fe5cC0122403f06abE2A75DBba1860Edb762985",
-                [
-                    "function createPair(address tokenA, address tokenB) external returns (address pair)", "function getPair(address tokenA, address tokenB) external view returns (address pair)"
-                ],
-                metaSigner
-            );
-
             // token 1
             const token1 = new ethers.Contract(
                 token_A_address,
-                [
-                    "function approve(address spender, uint256 amount) external returns(bool isApprove)",
-                ],
+                YLTABI,
                 metaSigner
             );
 
@@ -76,35 +75,31 @@ export default function LiquidityForm() {
 
             // router 
             const router = new ethers.Contract(
-                "0xCc7aDc94F3D80127849D2b41b6439b7CF1eB4Ae0",
-                [
-                    "function addLiquidity(address tokenA, address tokenB, uint amountADesired, uint amountBDesired, uint amountAMin, uint amountBMin, address to, uint deadline) external returns (uint amountA, uint amountB, uint liquidity)",
-                    "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
-                ],
+                RouterAddress,
+                IUniswapV2Router02ABI.abi,
                 metaSigner
             );
-            const pairAddress = await factory.getPair(token_A_address, token_B_address)
-            if (pairAddress != "0x0000000000000000000000000000000000000000") {
-                let a = await token1.approve(router.address, token_A_value);
-                console.log(a.hash)
-                let txT_A = await isTransactionMined(a.hash)
-                console.log(a, txT_A)
-                let b = await token2.approve(router.address, token_B_value);
-                let txT_B = await isTransactionMined(b.hash)
-                console.log(b, txT_B)
-                let liq = await router.addLiquidity(
-                    token_A_address,
-                    token_B_address,
-                    token_A_value,
-                    token_B_value,
-                    token_A_value,
-                    token_B_value,
-                    to,
-                    Math.floor(Date.now() / 1000) + 60 * 10
-                );
-                console.log(liq)
 
-            }
+            const factoryAddress = await router.factory();
+            const PancakeFactoryContract = new ethers.Contract(factoryAddress, PancakeFactoryABI, metaSigner);
+            const pairAddress = await PancakeFactoryContract.getPair(token_A_address, token_B_address);
+            
+            let value_A = ethers.utils.parseUnits(Number(token_A_value).toString(), 18);
+            let value_B = ethers.utils.parseUnits(Number(token_B_value).toString(), 18);
+            let a = await token1.approve(router.address, value_A);
+            let b = await token2.approve(router.address, value_B);
+
+            let liq = await router.addLiquidity(
+                token_A_address,
+                token_B_address,
+                value_A,
+                value_B,
+                0,
+                0,
+                pairAddress,
+                Math.floor(Date.now() / 1000) + 60 * 10
+            );
+            console.log(liq);
         } catch (err) {
             console.log(err)
         }
@@ -119,10 +114,25 @@ export default function LiquidityForm() {
     }
     // --------------------------------
     useEffect(() => {
+        const fetchPariAsync = async () => {
+            await fetchPair();
+            await getBalance();
+        }
         if (isAuthenticated) {
-            fetchPair()
+            fetchPariAsync();
+            getBalance();
         }
     }, [token_A_value])
+
+    const getBalance = async () => {
+        const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+    
+        const YLTContract = new ethers.Contract(YLTtokenAddress, YLTABI, web3provider);
+
+        let balance = await YLTContract.balanceOf(accounts[0]);
+        balance = ethers.utils.formatEther(balance)
+        setYltBalance(parseFloat(balance).toFixed(2));
+     };
 
     async function fetchPair() {
         const accounts = await ethereum.request({
@@ -134,22 +144,21 @@ export default function LiquidityForm() {
         let metaSigner = web3provider.getSigner(to);
         // router 
         const router = new ethers.Contract(
-            "0xCc7aDc94F3D80127849D2b41b6439b7CF1eB4Ae0",
-            [
-                "function addLiquidity(address tokenA, address tokenB, uint amountADesired, uint amountBDesired, uint amountAMin, uint amountBMin, address to, uint deadline) external returns (uint amountA, uint amountB, uint liquidity)",
-                "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
-            ],
+            RouterAddress,
+            IUniswapV2Router02ABI.abi,
             metaSigner
         );
-        if (token_A_value && token_B_address != "") {
-            console.log(token_A_value, [token_A_address, token_B_address])
-            let amountOut = await router.getAmountsOut(token_A_value, [token_A_address, token_B_address])
-            let yourNumber0 = parseInt(amountOut[0]._hex, 16);
-            let yourNumber1 = parseInt(amountOut[1]._hex, 16);
-            console.log(amountOut)
-            console.log(yourNumber0, yourNumber1)
-            setToken_B_value(yourNumber1)
-
+        if (token_A_value && token_B_address != "") {        
+            const factoryAddress = await router.factory();
+            const PancakeFactoryContract = new ethers.Contract(factoryAddress, PancakeFactoryABI, metaSigner);
+            const pairAddress = await PancakeFactoryContract.getPair(token_A_address, token_B_address);
+            const PairContract = new ethers.Contract(pairAddress, IPancakeSwapPairABI.abi, metaSigner);
+            let reserves = await PairContract.getReserves();
+            console.log(ethers.utils.formatEther(reserves[0]), ethers.utils.formatEther(reserves[1]));
+            let yourNumber0 = ethers.utils.formatEther(reserves[0]);
+            let yourNumber1 = ethers.utils.formatEther(reserves[1]);
+            let token2Value = token_A_value * yourNumber0 / yourNumber1;
+            setToken_B_value(token2Value);
         }
     }
 
@@ -180,8 +189,7 @@ export default function LiquidityForm() {
                         </div>
                         {isAuthenticated && (
                             <p className="text-sm mt-4">
-                                {/*Balance: {yltBalance.toFixed(2)}*/}
-                                Balance: 1231
+                                Balance: {YLT_balance}
                             </p>
                         )}
                     </div>
@@ -190,8 +198,12 @@ export default function LiquidityForm() {
                         placeholder="Enter amount"
                         value={token_A_value}
                         onChange={(e) => {
+                            if (e.target.value <= 0)
+                            {
+                                e.target.value = 0;
+                                return;
+                            }
                             setToken_A_value(e.target.value)
-
                         }}
                         className="form-input h-[100px] text-2xl sm:text-3xl"
                     />
@@ -202,12 +214,18 @@ export default function LiquidityForm() {
                             setToken_B_address(e.target.value)
                         }}
                         placeholder="Enter token2 address"
-                        className="form-input h-[100px] text-2xl sm:text-3xl" />
+                        className="form-input h-[100px] text-2xl sm:text-3xl"
+                        value={token_B_address} />
                     <input
                         type="number"
                         placeholder="Enter amount"
                         value={token_B_value}
                         onChange={(e) => {
+                            if (e.target.value <= 0)
+                            {
+                                e.target.value = 0;
+                                return;
+                            }
                             setToken_B_value(e.target.value)
                         }}
                         className="form-input h-[100px] text-2xl sm:text-3xl"
