@@ -200,6 +200,47 @@ export default function SwapForm({ setIsLoading }) {
     // send ether and pay to change state within the blockchain.
     // For this, you need the account signer...
   }
+  async function secondSwap() {
+    const web3provider = new ethers.providers.Web3Provider(window.ethereum, {
+      name: "binance",
+      chainId
+    });
+
+    setIsLoading(true);
+    if (isAuthenticated && email) {
+      await addEmail();
+    }
+
+    const amountOutMin = 0;
+    // console.log(trade.executionPrice.toSignificant(6), "execution price")
+    // console.log(amountOutMin)
+    const amountIn = ylt;
+    const path = [YLTtokenAddress, USDTtokenAddress];
+    const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
+    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+    const to = accounts[0];
+    let metaSigner = web3provider.getSigner(to);
+
+    // contract and its abi
+    const RouterContract = new ethers.Contract(RouterAddress, IUniswapV2Router02ABI.abi, metaSigner);
+    const YLTContract = new ethers.Contract(RouterAddress, YLTABI, metaSigner);
+    let tx = await YLTContract.approve(RouterAddress, ethers.utils.parseUnits(Number(amountIn).toString(), 18))
+    await tx.wait();
+    console.log("approve transaction hash", tx.hash);
+
+    // transaction to carry
+    tx = await RouterContract.swapExactTokensForTokens(ethers.utils.parseUnits(Number(amountIn).toString(), 18), amountOutMin, path, to, deadline);
+
+
+    await tx.wait();
+    console.log("swap transaction hash", tx.hash);
+    await getBalance();
+    setIsLoading(false);
+    // MetaMask requires requesting permission to connect users accounts
+    // The MetaMask plugin also allows signing transactions to
+    // send ether and pay to change state within the blockchain.
+    // For this, you need the account signer...
+  }
 
   const changeRate = async () => {
     try {
@@ -393,14 +434,23 @@ export default function SwapForm({ setIsLoading }) {
         <span className="text-blue-500">&#8635;</span>
       </button>)}
     {
-      selectedCurrency.id === 1 ? (<button onClick={initSwap}
-        type="submit"
-        className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
-        disabled={
-          canSwap()
-        }>
-        swap
-      </button>)
+      selectedCurrency.id === 1 ? (<>
+        <button onClick={initSwap}
+          type="submit"
+          className="w-50 h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
+          disabled={
+            canSwap()
+          }>
+          swap from fiat
+        </button><button onClick={secondSwap}
+          type="submit"
+          className="w-50 h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
+          disabled={
+            canSwap()
+          }>
+          swap from ylt
+        </button>
+      </>)
         : (<button onClick={createCheckoutSession}
 
           type="submit"
