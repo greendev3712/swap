@@ -6,30 +6,7 @@ import Burger from '../assets/burger.svg';
 import Cross from '../assets/cross.svg';
 import EventsModal from "./EventsModal";
 import { useMoralis } from "react-moralis";
-
-const navLinks = [
-	{
-		id: 1,
-		title: "Marketplace",
-		url: "https://nft.yourlifegames.com/",
-		icon: <MarketPlaceSVG />,
-	},
-	{
-		id: 2,
-		title: "My account",
-		url: "https://nft.yourlifegames.com/myaccount",
-	},
-	{
-		id: 3,
-		title: "Collections",
-		url: "https://nft.yourlifegames.com/collections",
-	},
-	{
-		id: 4,
-		title: "Chat",
-		url: "https://nft.yourlifegames.com/chat",
-	},
-];
+import navLinks from "../constants/menu";
 
 const Navbar = ({ setIsLoading }) => {
 	const ref = useRef(null);
