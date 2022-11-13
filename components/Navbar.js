@@ -6,7 +6,7 @@ import LINKS from "../constants/menu";
 import Burger from '../assets/burger.svg';
 import Cross from '../assets/cross.svg';
 import EventsModal from "./EventsModal";
-import {useMoralis} from "react-moralis";
+import { useMoralis } from "react-moralis";
 
 
 const Navbar = ({ setIsLoading }) => {
@@ -56,10 +56,10 @@ const Navbar = ({ setIsLoading }) => {
 
 			{/* Navbar Links */}
 			<div className="flex h-full w-full pr-6 sm:pr-12 bg-[#ffffff] rounded-r-xl items-center justify-between white-triangle-reverted with-triangle">
-				<button className="sm:hidden" onClick={openMobileMenuHandler}>
+				<button className="" onClick={openMobileMenuHandler}>
 					<Burger className="w-10 h-2" />
 				</button>
-				<div className="hidden sm:flex">
+				<div className="sm:flex">
 					{LINKS.map((link) => {
 						<Link key={link.id} href={`${link.url}${tokenURI}`}>
 							<a className="flex text-md text-[#242424] uppercase underline underline-offset-8 underline-color decoration-[#90E040] mr-4">
@@ -68,7 +68,7 @@ const Navbar = ({ setIsLoading }) => {
 										{link.icon}
 									</span>
 								)}
-									{link.title}
+								{link.title}
 							</a>
 						</Link>
 					})}

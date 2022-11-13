@@ -1,5 +1,5 @@
-import {useEffect, useRef, useState} from "react";
-import {useMoralis} from "react-moralis";
+import { useEffect, useRef, useState } from "react";
+import { useMoralis } from "react-moralis";
 import {
   ChainId,
   Fetcher,
@@ -9,12 +9,12 @@ import {
   Trade,
   TradeType
 } from "@uniswap/sdk";
-import {ethers} from "ethers";
-import {loadStripe} from "@stripe/stripe-js";
+import { ethers } from "ethers";
+import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
-import {useRouter} from 'next/router';
+import { useRouter } from 'next/router';
 
-import {emailValidate} from "../utils/emailValidation";
+import { emailValidate } from "../utils/emailValidation";
 import CurrencyDropdown from "./CurrencyDropdown";
 import USDTLogo from '../assets/usdt.png'
 import USDLogo from '../assets/usd.png'
@@ -50,7 +50,7 @@ const currencies = [
   },
 ];
 
-export default function SwapForm({setIsLoading}) {
+export default function SwapForm({ setIsLoading }) {
   const validateClassNameRef = useRef("");
   const [selectedCurrency, setSelectedCurrency] = useState(currencies[0]);
   const [usdAmount, setUsdAmount] = useState("");
@@ -60,31 +60,31 @@ export default function SwapForm({setIsLoading}) {
   const [ylt, setYlt] = useState(0);
   const [yltBalance, setYltBalance] = useState(0);
   const [usdtBalance, setUsdtBalance] = useState(0);
-  const [isApproved, setIsApproved] = useState(false);
-  const {user, isAuthenticated, Moralis, account} = useMoralis();
+  const { user, isAuthenticated, Moralis, account } = useMoralis();
 
   const router = useRouter();
 
-  useEffect(() => {
-    checkAllowance().then(res => setIsApproved(!!res))
-  }, [])
+  // useEffect(() => {
+  //   checkAllowance().then(res => setIsApproved(!!res))
+  // }, [])
 
   useEffect(() => {
-    const {status, token} = router.query;
+    const { status, token } = router.query;
     if (status == "success" && token.length > 100) {
       console.log("Success");
       axios.post('api/posts/stripeSuccess', {
         status: status,
         timestamp: token
       }).then(res => {
-        setTimeout(() => {}, 10000);
+        setTimeout(() => { }, 10000);
       }).catch(err => console.log(err));
     }
     else if (token?.length > 20) {
-      Moralis.Cloud.run("getUserById", {id: token}).then((result) => {
+      Moralis.Cloud.run("getUserById", { id: token }).then((result) => {
         localStorage.setItem("Parse/wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp/currentUser", result)
+        setEmail(result?.attributes.email)
       })
-    } 
+    }
   }, [router.isReady])
 
   const isBrowser = () => typeof window !== 'undefined';
@@ -99,7 +99,7 @@ export default function SwapForm({setIsLoading}) {
   }
 
   async function checkAllowance() {
-    const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
     const to = accounts[0];
     console.log(to);
     let metaSigner = web3provider.getSigner(to);
@@ -113,23 +113,23 @@ export default function SwapForm({setIsLoading}) {
     return ans
   }
 
-  async function approveSpend() {
-    const accounts = await ethereum.request({method: 'eth_requestAccounts'});
-    const to = accounts[0]
-    let metaSigner = web3provider.getSigner(to);
-    console.log(to, metaSigner)
-    // < beta
-    const USDT_contract = new ethers.Contract(USDTtokenAddress, BEP40TokenABI, metaSigner);
-    const approve = await USDT_contract.approve(RouterAddress, "1000000000000000000000")
+  // async function approveSpend() {
+  //   const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+  //   const to = accounts[0]
+  //   let metaSigner = web3provider.getSigner(to);
+  //   console.log(to, metaSigner)
+  //   // < beta
+  //   const USDT_contract = new ethers.Contract(USDTtokenAddress, BEP40TokenABI, metaSigner);
+  //   const approve = await USDT_contract.approve(RouterAddress, "1000000000000000000000")
 
-    console.log(approve, 'approve')
-    // beta >
-    setIsApproved(true)
-  }
+  //   console.log(approve, 'approve')
+  //   // beta >
+  //   setIsApproved(true)
+  // }
 
   const addEmail = async () => {
-    const {id} = user;
-    await Moralis.Cloud.run("addEmail", {id, email});
+    const { id } = user;
+    await Moralis.Cloud.run("addEmail", { id, email });
   };
 
   const canSwap = () => {
@@ -140,7 +140,7 @@ export default function SwapForm({setIsLoading}) {
       return hasError;
     }
 
-    if (user && !user ?. attributes.email && !email) {
+    if (user && !user?.attributes.email && !email) {
       hasError = true;
       return hasError;
     }
@@ -150,7 +150,7 @@ export default function SwapForm({setIsLoading}) {
       return hasError;
     }
 
-    if (user && !user ?. attributes.ethAddress && !walletAddress) {
+    if (user && !user?.attributes.ethAddress && !walletAddress) {
       hasError = true;
       return hasError;
     }
@@ -175,7 +175,7 @@ export default function SwapForm({setIsLoading}) {
     const amountIn = usdAmount;
     const path = [USDTtokenAddress, YLTtokenAddress];
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
-    const accounts = await ethereum.request({method: "eth_requestAccounts"});
+    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
     const to = accounts[0];
     let metaSigner = web3provider.getSigner(to);
 
@@ -203,7 +203,7 @@ export default function SwapForm({setIsLoading}) {
 
   const changeRate = async () => {
     try {
-      const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+      const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       const to = accounts[0]
       let metaSigner = web3provider.getSigner(to);
 
@@ -245,7 +245,7 @@ export default function SwapForm({setIsLoading}) {
 
   const getBalance = async () => {
 
-    const accounts = await ethereum.request({method: 'eth_requestAccounts'});
+    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
     const to = accounts[0]
     let metaSigner = web3provider.getSigner(to);
 
@@ -259,7 +259,7 @@ export default function SwapForm({setIsLoading}) {
   };
 
   useEffect(() => {
-    const getBalanceAsync = async() => {
+    const getBalanceAsync = async () => {
       await getBalance();
     }
     if (isAuthenticated) {
@@ -292,10 +292,10 @@ export default function SwapForm({setIsLoading}) {
       item.price = usdAmount;
       item.address = account;
       item.amount = ylt;
-      item.email = !user ?. attributes.email ? email : user ?. attributes.email;
+      item.email = !user?.attributes.email ? email : user?.attributes.email;
 
-      axios.post('api/posts/create-checkout-session', {item: item}).then(checkoutSession => {
-        stripe.redirectToCheckout({sessionId: checkoutSession.data.id}).then(result => {
+      axios.post('api/posts/create-checkout-session', { item: item }).then(checkoutSession => {
+        stripe.redirectToCheckout({ sessionId: checkoutSession.data.id }).then(result => {
           if (result.error) {
             alert(result.error.message);
           }
@@ -314,12 +314,12 @@ export default function SwapForm({setIsLoading}) {
         <div className="absolute right-5 top-2/4 -translate-y-2/4 flex flex-col items-end">
           <CurrencyDropdown options={currencies}
             selected={selectedCurrency}
-            onChange={changeCurrentCurrency}/> {
-          isAuthenticated && selectedCurrency.id !== 2 && (<p className="text-sm mt-4">
-            Balance: {
-            usdtBalance.toFixed(2)
-          } </p>)
-        } </div>
+            onChange={changeCurrentCurrency} /> {
+            isAuthenticated && selectedCurrency.id !== 2 && (<p className="text-sm mt-4">
+              Balance: {
+                usdtBalance.toFixed(2)
+              } </p>)
+          } </div>
         <input type="number" placeholder="Enter amount"
           value={usdAmount}
           onChange={
@@ -332,89 +332,82 @@ export default function SwapForm({setIsLoading}) {
               setYlt(e.target.value * rate);
             }
           }
-          className="form-input h-[100px] text-2xl sm:text-3xl"/>
+          className="form-input h-[100px] text-2xl sm:text-3xl" />
       </div>
-    {/* Rest Inputs */}
-    <div className="w-full relative">
-      <div className="absolute right-5 top-2/4 -translate-y-2/4 flex flex-col items-end">
-        <div className=" py-1.5 px-2.5 w-[134px] flex items-center rounded-3xl bg-[#C3EB9B]">
-          <Logo className="h-6 w-6 mr-1.5"/>
-          <span className="text-2xl">YLT</span>
-        </div>
-        {
-        isAuthenticated && (<p className="text-sm mt-4">
-          Balance: {
-          yltBalance.toFixed(2)
-        } </p>)
-      } </div>
-      <input type="number" placeholder="YLT Token Amount"
-        value={ylt}
-        onChange={
-          (e) => {
-            if (e.target.value < 0) {
-              e.target.value = 0;
-              return;
+      {/* Rest Inputs */}
+      <div className="w-full relative">
+        <div className="absolute right-5 top-2/4 -translate-y-2/4 flex flex-col items-end">
+          <div className=" py-1.5 px-2.5 w-[134px] flex items-center rounded-3xl bg-[#C3EB9B]">
+            <Logo className="h-6 w-6 mr-1.5" />
+            <span className="text-2xl">YLT</span>
+          </div>
+          {
+            isAuthenticated && (<p className="text-sm mt-4">
+              Balance: {
+                yltBalance.toFixed(2)
+              } </p>)
+          } </div>
+        <input type="number" placeholder="YLT Token Amount"
+          value={ylt}
+          onChange={
+            (e) => {
+              if (e.target.value < 0) {
+                e.target.value = 0;
+                return;
+              }
+              setYlt(e.target.value);
+              setUsdAmount(e.target.value / rate);
             }
-            setYlt(e.target.value);
-            setUsdAmount(e.target.value / rate);
           }
-        }
-        className="form-input mt-2 w-full h-[100px] text-2xl sm:text-3xl"/>
+          className="form-input mt-2 w-full h-[100px] text-2xl sm:text-3xl" />
+      </div>
     </div>
-</div>
 
-{
-!user ?. attributes.ethAddress && (<>
-  <label htmlFor="walletAddress" className="mt-5 w-[97%] mx-auto text-gray-500 text-xs">
-    Your wallet must be BEP-20 compatible
-  </label>
-  <input id="walletAddress" type="text" placeholder="Enter your crypto wallet address"
-    value={walletAddress}
-    onChange={
-      (e) => changeWalletValue(e.target.value)
-    }
-    className={
-      `form-input font-normal text-lg ${
-        walletAddress.length > 0 ? validateClassNameRef.current : ""
-      }`
-    }/>
-</>)}
-{
-!user ?. attributes.email && (<input type="email" placeholder="Enter your email address"
-  value={email}
-  onChange={
-    (e) => setEmail(e.target.value)
-  }
-  className="form-input text-lg font-normal"/>)}
-{
-rate > 0 && (<button type="button" className="bg-transparent self-end mt-4"
-  onClick={changeRate}>
-  1$/{rate}
-  - update rate{" "}
-  <span className="text-blue-500">&#8635;</span>
-</button>)}
-{
-selectedCurrency.id === 1 ? (isApproved ? (<button onClick={initSwap}
-  type="submit"
-  className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
-  disabled={
-    canSwap()
-}>
-  swap
-</button>) : (<button onClick={approveSpend}
-  type="submit"
-  className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
-  disabled={
-    canSwap()
-}>
-  approve
-</button>)) : (<button onClick={createCheckoutSession}
+    {
+      !user?.attributes.ethAddress && (<>
+        <label htmlFor="walletAddress" className="mt-5 w-[97%] mx-auto text-gray-500 text-xs">
+          Your wallet must be BEP-20 compatible
+        </label>
+        <input id="walletAddress" type="text" placeholder="Enter your crypto wallet address"
+          value={walletAddress}
+          onChange={
+            (e) => changeWalletValue(e.target.value)
+          }
+          className={
+            `form-input font-normal text-lg ${walletAddress.length > 0 ? validateClassNameRef.current : ""
+            }`
+          } />
+      </>)}
+    {
+      !user?.attributes.email && (<input type="email" placeholder="Enter your email address"
+        value={email}
+        onChange={
+          (e) => setEmail(e.target.value)
+        }
+        className="form-input text-lg font-normal" />)}
+    {
+      rate > 0 && (<button type="button" className="bg-transparent self-end mt-4"
+        onClick={changeRate}>
+        1$/{rate}
+        - update rate{" "}
+        <span className="text-blue-500">&#8635;</span>
+      </button>)}
+    {
+      selectedCurrency.id === 1 ? (<button onClick={initSwap}
+        type="submit"
+        className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
+        disabled={
+          canSwap()
+        }>
+        swap
+      </button>)
+        : (<button onClick={createCheckoutSession}
 
-  type="submit"
-  className="w-full h-16 rounded-3xl bg-[#546ADA] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
-  disabled={
-    canSwap()
-}>
-  Stripe
-</button>)} </div>)
+          type="submit"
+          className="w-full h-16 rounded-3xl bg-[#546ADA] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
+          disabled={
+            canSwap()
+          }>
+          Stripe
+        </button>)} </div>)
 }
