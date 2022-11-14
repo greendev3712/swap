@@ -51,10 +51,9 @@ export default async function CreateStripeSession(req, res) {
           token_amount: item.amount + "",
           token: hash_1
         }
-        Moralis.Cloud.run("saveTempFile", data)
+        Moralis.Cloud.run("saveTempFile", data);
+        res.status(200).json({ id: session.id });
       }).catch(error => res.status(500).json({ msg: error }))
-
-      res.status(200).json({ id: session.id });
     } catch (err) {
       res.status(500).json({ msg: err });
     }
