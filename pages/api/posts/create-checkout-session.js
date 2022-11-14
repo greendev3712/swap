@@ -34,26 +34,29 @@ export default async function CreateStripeSession(req, res) {
     const passphrase = 'iorioumioucv34oucf90u9d824h89';
 
     let encode = CryptoJS.AES.encrypt(str, passphrase).toString();
-    res.status(500).json({ msg: encode });
 
-    await stripe.checkout.sessions.create({
-      payment_method_types: ['card'], line_items: [transformedItem], mode: 'payment', success_url: redirectURL + '?status=success&token=' + encode, cancel_url: redirectURL, metadata: {
-        images: item.image
-      }
-    }).then(session => {
-      Moralis.start({ serverUrl: env.APP_SERVER_URL, appId: env.APP_ID }).then(() => {
-        const data = {
-          email: item.email,
-          address: item.address,
-          amount: item.price,
-          token_amount: item.amount + "",
-          token: hash_1
+    await funct1(async () => {
+      await stripe.checkout.sessions.create({
+        payment_method_types: ['card'], line_items: [transformedItem], mode: 'payment', success_url: redirectURL + '?status=success&token=' + encode, cancel_url: redirectURL, metadata: {
+          images: item.image
         }
-        Moralis.Cloud.run("saveTempFile", data)
-      })
+      }).then(session => {
+        Moralis.start({ serverUrl: env.APP_SERVER_URL, appId: env.APP_ID }).then(() => {
+          const data = {
+            email: item.email,
+            address: item.address,
+            amount: item.price,
+            token_amount: item.amount + "",
+            token: hash_1
+          }
+          Moralis.Cloud.run("saveTempFile", data)
+        })
 
-      res.status(200).json({ id: session.id });
-    }).catch(err => res.status(500).json({ msg: err }));
+        res.status(200).json({ id: session.id });
+      }).catch(err1 => res.status(500).json({ msg: err1 }));
+
+    }).then(() => { console.log() })
+      .catch((err2 => res.status(500).json({ msg: err2 })));
 
     res.status(500).json({ msg: "Internal Server Error!!!" });
   }
