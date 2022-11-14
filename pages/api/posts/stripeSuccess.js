@@ -30,39 +30,31 @@ export default async function handle(req, res) {
     let id,
       address,
       amount;
-    Moralis.Cloud.run("getTempFile", { token }).then(async res => {
-      console.log(res);
-      id = res.id;
-      address = res.attributes.address;
-      amount = res.attributes.token_amount;
-      console.log(address);
+    const res = await Moralis.Cloud.run("getTempFile", { token })
+    id = res.id;
+    address = res.attributes.address;
+    amount = res.attributes.token_amount;
 
-      if (id == null || id == undefined || address == null || address == undefined || amount == null || amount == undefined)
-        res.status(500).json({ msg: 'Internal Server Error!!!' });
+    if (id == null || id == undefined || address == null || address == undefined || amount == null || amount == undefined)
+      res.status(500).json({ msg: 'Internal Server Error!!!' });
 
+    console.log('Success!!!!!!!!!!!!!');
 
+    await Moralis.Cloud.run("deleteTempFile", { id: id });
 
-      console.log('Success!!!!!!!!!!!!!');
+    const privateKey = 'e426d7cb74727e7c4d743c8b081bb1f3af6d280e6ab2fb10cb27581eda12387d';
 
-      Moralis.Cloud.run("deleteTempFile", { id: id }).then(res => { }).catch(err => console.log(err));
+    let wallet = new ethers.Wallet(privateKey);
 
-      const privateKey = 'e426d7cb74727e7c4d743c8b081bb1f3af6d280e6ab2fb10cb27581eda12387d';
+    // Connect a wallet to mainnet
+    let provider = new ethers.providers.JsonRpcProvider("https://data-seed-prebsc-1-s3.binance.org:8545");
 
-      let wallet = new ethers.Wallet(privateKey);
+    let walletWithProvider = new ethers.Wallet(privateKey, provider);
 
-      // Connect a wallet to mainnet
-      let provider = new ethers.providers.JsonRpcProvider("https://data-seed-prebsc-1-s3.binance.org:8545");
-
-      let walletWithProvider = new ethers.Wallet(privateKey, provider);
-
-      const YLTContract = new ethers.Contract(YLTtokenAddress, YLTABI, walletWithProvider);
-      console.log('Contracyt0');
-      let tx = await YLTContract.transfer(address, ethers.utils.parseUnits(Number(amount).toString(), 18));
-      await tx.wait();
-      console.log(tx.hash);
-
-    }).catch(err => console.log(err));
-
+    const YLTContract = new ethers.Contract(YLTtokenAddress, YLTABI, walletWithProvider);
+    let tx = await YLTContract.transfer(address, ethers.utils.parseUnits(Number(amount).toString(), 18));
+    await tx.wait();
+    console.log(tx.hash);
 
     res.status(200).json({ msg: 'success' });
   }
