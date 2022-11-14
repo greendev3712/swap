@@ -34,13 +34,14 @@ export default async function CreateStripeSession(req, res) {
     const passphrase = 'iorioumioucv34oucf90u9d824h89';
 
     let encode = CryptoJS.AES.encrypt(str, passphrase).toString();
-    res.status(500).json({ msg: encode });
+
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'], line_items: [transformedItem], mode: 'payment', success_url: redirectURL + '?status=success&token=' + encode, cancel_url: redirectURL + '?status=cancel', metadata: {
+      payment_method_types: ['card'], line_items: [transformedItem], mode: 'payment', success_url: redirectURL + '?status=success&token=' + encode, cancel_url: redirectURL, metadata: {
         images: item.image
       }
     });
 
+    res.status(500).json({ msg: session });
 
     Moralis.start({ serverUrl: env.APP_SERVER_URL, appId: env.APP_ID }).then(() => {
       const data = {
