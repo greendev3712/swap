@@ -47,7 +47,8 @@ export default function LiquidityForm({ setIsLoading }) {
     }, [isAuthenticated]);
     /*------------------------------ */
     async function addLiquidity() {
-        setIsLoading(true)
+        //setIsLoading(true)
+        console.log("Started:");
         try {
             const accounts = await ethereum.request({
                 method: 'eth_requestAccounts',
@@ -84,7 +85,7 @@ export default function LiquidityForm({ setIsLoading }) {
                 IUniswapV2Router02ABI.abi,
                 metaSigner
             );
-
+            console.log(">>>>>>>>>>>>>>", router);
             const factoryAddress = await router.factory();
             const PancakeFactoryContract = new ethers.Contract(factoryAddress, PancakeFactoryABI, metaSigner);
             const pairAddress = await PancakeFactoryContract.getPair(token_A_address, token_B_address);
@@ -105,12 +106,12 @@ export default function LiquidityForm({ setIsLoading }) {
                 Math.floor(Date.now() / 1000) + 60 * 10
             );
             console.log(liq);
-            setTimeout(() => {
-                setIsLoading(false)
-                location.reload()
-            }, 1000)
+            // setTimeout(() => {
+            //     setIsLoading(false)
+            //     location.reload()
+            // }, 1000)
         } catch (err) {
-            console.log(err)
+            console.log(">>>>>>>>>>>>>>>", err)
         }
     }
 
