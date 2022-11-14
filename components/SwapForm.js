@@ -436,7 +436,7 @@ export default function SwapForm({ setIsLoading }) {
           disabled={
             canSwap()
           }>
-          swap from fiat
+          swap from crypto
         </button><button onClick={secondSwap}
           type="submit"
           className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
