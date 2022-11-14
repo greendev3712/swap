@@ -54,7 +54,11 @@ export default function LiquidityForm({ setIsLoading }) {
             });
             console.log(accounts)
             const to = accounts[0]
-            await web3provider.send('eth_requestAccounts', []);
+
+            const web3provider = new ethers.providers.Web3Provider(window.ethereum, {
+                name: "binance",
+                chainId
+            });
             let metaSigner = web3provider.getSigner(to);
             console.log(metaSigner)
 
@@ -102,6 +106,7 @@ export default function LiquidityForm({ setIsLoading }) {
             );
             console.log(liq);
             setTimeout(() => {
+                setIsLoading(false)
                 location.reload()
             }, 1000)
         } catch (err) {
