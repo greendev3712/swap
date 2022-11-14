@@ -339,11 +339,12 @@ export default function SwapForm({ setIsLoading }) {
       item.email = !user?.attributes.email ? email : user?.attributes.email;
       console.log('item', item);
       axios.post('api/posts/create-checkout-session', { item: item }).then(checkoutSession => {
-        stripe.redirectToCheckout({ sessionId: checkoutSession.data.id }).then(result => {
-          if (result.error) {
-            alert(result.error.message);
-          }
-        });
+        console.log(checkoutSession.id);
+        // stripe.redirectToCheckout({ sessionId: checkoutSession.data.id }).then(result => {
+        //   if (result.error) {
+        //     alert(result.error.message);
+        //   }
+        // });
       }).catch(err => {
         setIsLoading(false);
         console.log(err)

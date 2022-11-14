@@ -1,5 +1,5 @@
 const PRIVATE_KEY = "sk_test_51IjNgIJwZppK21ZQK85uLARMdhtuuhA81PB24VDfiqSW8SXQZKrZzvbpIkigEb27zZPBMF4UEG7PK9587Xresuc000x8CdE22A";
-const stripe = require("stripe")('sk_test_rXXPihdgV35n9hWedz233wVN');
+const stripe = require("stripe")(PRIVATE_KEY);
 const Moralis = require("moralis-v1/node");
 const crypto = require('crypto');
 const CryptoJS = require('crypto-js');
@@ -35,30 +35,28 @@ export default async function CreateStripeSession(req, res) {
 
     let encode = CryptoJS.AES.encrypt(str, passphrase).toString();
 
-    await funct1(async () => {
-      res.status(500).json({ msg: "Internal Server Error!!!" });
-      await stripe.checkout.sessions.create({
-        payment_method_types: ['card'], line_items: [transformedItem], mode: 'payment', success_url: redirectURL + '?status=success&token=' + encode, cancel_url: redirectURL, metadata: {
+    try {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'], line_items: [transformedItem], mode: 'payment', success_url: redirectURL + '?status=success&token=' + encode, cancel_url: redirectURL + '?status=cancel', metadata: {
           images: item.image
         }
-      }).then(session => {
-        Moralis.start({ serverUrl: env.APP_SERVER_URL, appId: env.APP_ID }).then(() => {
-          const data = {
-            email: item.email,
-            address: item.address,
-            amount: item.price,
-            token_amount: item.amount + "",
-            token: hash_1
-          }
-          Moralis.Cloud.run("saveTempFile", data)
-        })
+      });
 
-        res.status(200).json({ id: session.id });
-      }).catch(err1 => res.status(500).json({ msg: err1 }));
 
-    }).then(() => { console.log() })
-      .catch((err2 => res.status(500).json({ msg: err2 })));
+      Moralis.start({ serverUrl: env.APP_SERVER_URL, appId: env.APP_ID }).then(() => {
+        const data = {
+          email: item.email,
+          address: item.address,
+          amount: item.price,
+          token_amount: item.amount + "",
+          token: hash_1
+        }
+        Moralis.Cloud.run("saveTempFile", data)
+      })
 
-    res.status(500).json({ msg: "Internal Server Error!!!" });
+      res.status(200).json({ id: session.id });
+    } catch (err) {
+      res.status(500).json({ msg: err });
+    }
   }
 }
