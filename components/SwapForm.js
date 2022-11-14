@@ -81,7 +81,8 @@ export default function SwapForm({ setIsLoading }) {
     }
     else if (token?.length > 20) {
       Moralis.Cloud.run("getUserById", { id: token }).then((result) => {
-        localStorage.setItem("Parse/wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp/currentUser", result)
+        console.log(result)
+        localStorage.setItem("Parse/wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp/currentUser", JSON.stringify(result))
         setEmail(result?.attributes.email)
       })
     }
