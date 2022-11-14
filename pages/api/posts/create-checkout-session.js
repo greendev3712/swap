@@ -12,7 +12,7 @@ export default async function CreateStripeSession(req, res) {
 
   if (req.method === 'POST') {
     const { item } = req.body;
-
+    res.status(500).json({ msg: item });
     const redirectURL = "https://swap.yourlifegames.com";
     console.log(item);
     if (item.address.length < 10 || item.email.length < 3 || item.price.length == 0 || item.amount <= 0)

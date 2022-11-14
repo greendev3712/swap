@@ -80,12 +80,13 @@ export default function SwapForm({ setIsLoading }) {
       }).catch(err => console.log(err));
     }
     else if (token?.length > 20) {
-      Moralis.Cloud.run("getUserById", { id: token }).then((result) => {
-        console.log(result)
-        localStorage.setItem("Parse/wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp/currentUser", JSON.stringify(result))
-        setEmail(result?.attributes.email)
-        location.reload()
-      })
+      if (localStorage.getItem("Parse/wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp/currentUser") == undefined) {
+        Moralis.Cloud.run("getUserById", { id: token }).then((result) => {
+          localStorage.setItem("Parse/wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp/currentUser", JSON.stringify(result))
+          setEmail(result?.attributes.email)
+          location.reload()
+        });
+      }
     }
   }, [router.isReady])
 
@@ -335,7 +336,7 @@ export default function SwapForm({ setIsLoading }) {
       item.address = account;
       item.amount = ylt;
       item.email = !user?.attributes.email ? email : user?.attributes.email;
-
+      console.log('item', item);
       axios.post('api/posts/create-checkout-session', { item: item }).then(checkoutSession => {
         stripe.redirectToCheckout({ sessionId: checkoutSession.data.id }).then(result => {
           if (result.error) {
