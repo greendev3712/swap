@@ -5,12 +5,12 @@ const nextConfig = {
   images: {
     domains: ["ipfs.moralis.io"],
     domains: ['images.unsplash.com'],
-    domains: ['localhost:3000']
+    domains: ['swap.yourlifegames.com']
   }
 };
 
 module.exports = {
-  ... nextConfig,
+  ...nextConfig,
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,

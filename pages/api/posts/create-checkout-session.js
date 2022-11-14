@@ -12,9 +12,8 @@ export default async function CreateStripeSession(req, res) {
 
   if (req.method === 'POST') {
     const { item } = req.body;
-    res.status(500).json({ msg: item });
     const redirectURL = "https://swap.yourlifegames.com";
-    console.log(item);
+
     if (item.address.length < 10 || item.email.length < 3 || item.price.length == 0 || item.amount <= 0)
       res.status(500).json({ msg: "Internal Server Error!!!" });
 
@@ -26,16 +25,14 @@ export default async function CreateStripeSession(req, res) {
       }, description: 'description', quantity: item.quantity
     }
 
-    console.log(transformedItem);
-
     const hash_0 = crypto.createHash('md5').update((item.email + Date.now()).toString()).digest('hex');
     const hash_1 = crypto.createHash('sha256').update((Date.now().toString() + item.amount + Math.random().toString() + item.price).toString()).digest('hex');
     const hash_2 = crypto.createHash('md4').update((Math.random() + Date.now()).toString()).digest('hex');
-    console.log(hash_1);
+
     const str = hash_0 + hash_1 + hash_2;
 
     const passphrase = 'iorioumioucv34oucf90u9d824h89';
-    console.log(str);
+
     let encode = CryptoJS.AES.encrypt(str, passphrase).toString();
     console.log(encode);
     const session = await stripe.checkout.sessions.create({
@@ -43,7 +40,7 @@ export default async function CreateStripeSession(req, res) {
         images: item.image
       }
     });
-    console.log('>>>>>>>>>>>>>>>', session);
+
 
     Moralis.start({ serverUrl: env.APP_SERVER_URL, appId: env.APP_ID }).then(() => {
       const data = {
@@ -53,7 +50,6 @@ export default async function CreateStripeSession(req, res) {
         token_amount: item.amount + "",
         token: hash_1
       }
-      console.log(data);
       Moralis.Cloud.run("saveTempFile", data)
     })
 

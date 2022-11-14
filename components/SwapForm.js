@@ -318,7 +318,7 @@ export default function SwapForm({ setIsLoading }) {
   const [item, setItem] = useState({
     name: 'YL Token',
     description: 'Latest Apple AirPods.',
-    image: 'https://localhost:3000/assets/LogoYLGWhite.png',
+    image: 'https://swap.yourlifegames.com/assets/LogoYLGWhite.png',
     quantity: 1,
     price: 9,
     email: '',
