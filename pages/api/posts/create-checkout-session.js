@@ -7,13 +7,14 @@ const CryptoJS = require('crypto-js');
 export default async function CreateStripeSession(req, res) {
   const env = {
     APP_ID: "wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp",
-    APP_SERVER_URL: "https://b3o7m8vdspy1.usemoralis.com:2053/server"
+    APP_SERVER_URL: "https://b3o7m8vdspy1.usemoralis.com:2053/server",
+    APP_MASTER_KEY: "zW1oIZN0Muq2OW5bBsAwsbm7pn22IJz1DJtHj2Tb"
   }
 
   if (req.method === 'POST') {
     const { item } = req.body;
     const redirectURL = "https://swap.yourlifegames.com";
-
+    await Moralis?.start({ serverUrl: env.APP_SERVER_URL, appId: env.APP_ID, masterKey: env.APP_MASTER_KEY })
     if (item.address.length < 10 || item.email.length < 3 || item.price.length == 0 || item.amount <= 0)
       res.status(500).json({ msg: "Internal Server Error!!!" });
 
@@ -42,18 +43,15 @@ export default async function CreateStripeSession(req, res) {
         }
       });
 
-
-      Moralis.start({ serverUrl: env.APP_SERVER_URL, appId: env.APP_ID }).then(() => {
-        const data = {
-          email: item.email,
-          address: item.address,
-          amount: item.price,
-          token_amount: item.amount + "",
-          token: hash_1
-        }
-        Moralis.Cloud.run("saveTempFile", data);
-        res.status(200).json({ id: session.id });
-      }).catch(error => res.status(500).json({ msg: error }))
+      const data = {
+        email: item.email,
+        address: item.address,
+        amount: item.price,
+        token_amount: item.amount + "",
+        token: hash_1
+      }
+      await Moralis?.Cloud.run("saveTempFile", data);
+      res.status(200).json({ id: session.id });
     } catch (err) {
       res.status(500).json({ msg: err });
     }

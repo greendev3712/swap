@@ -1,14 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useMoralis } from "react-moralis";
-import {
-  ChainId,
-  Fetcher,
-  Percent,
-  Route,
-  TokenAmount,
-  Trade,
-  TradeType
-} from "@uniswap/sdk";
+
 import { ethers } from "ethers";
 import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
