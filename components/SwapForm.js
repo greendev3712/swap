@@ -328,7 +328,7 @@ export default function SwapForm({ setIsLoading }) {
   const publishableKey = "pk_test_51IjNgIJwZppK21ZQa6e7ZVOImwJ2auI54TD6xHici94u7DD5mhGf1oaBiDyL9mX7PbN5nt6Weap4tmGWLRIrslCu00d8QgQ3nI";
   const stripePromise = loadStripe(publishableKey);
 
-  const createCheckoutSession = async => {
+  const createCheckoutSession = async () => {
     setIsLoading(true);
     const accounts = await ethereum.request({ method: "eth_requestAccounts" });
     const to = accounts[0];
