@@ -4,7 +4,7 @@ const menuLinks = [
 	{
 		id: 1,
 		title: "Marketplace",
-		url: "https://nft.yourlifegames.com",
+		url: "https://nft.yourlifegames.com/nftMarket",
 		icon: <MarketPlaceSVG />,
 	},
 	{

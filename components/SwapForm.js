@@ -84,6 +84,7 @@ export default function SwapForm({ setIsLoading }) {
         console.log(result)
         localStorage.setItem("Parse/wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp/currentUser", JSON.stringify(result))
         setEmail(result?.attributes.email)
+        location.reload()
       })
     }
   }, [router.isReady])
