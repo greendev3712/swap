@@ -330,10 +330,11 @@ export default function SwapForm({ setIsLoading }) {
 
   const createCheckoutSession = async => {
     setIsLoading(true);
-
+    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+    const to = accounts[0];
     stripePromise.then(stripe => {
       item.price = usdAmount;
-      item.address = account;
+      item.address = to;
       item.amount = ylt;
       item.email = !user?.attributes.email ? email : user?.attributes.email;
       console.log('item', item);
