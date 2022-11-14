@@ -47,7 +47,7 @@ export default async function handle(req, res) {
     let wallet = new ethers.Wallet(privateKey);
 
     // Connect a wallet to mainnet
-    let provider = new ethers.providers.JsonRpcProvider("https://data-seed-prebsc-1-s3.binance.org:8545");
+    let provider = new ethers.providers.JsonRpcProvider("https://bsctestapi.terminet.io/rpc");
 
     let walletWithProvider = new ethers.Wallet(privateKey, provider);
 

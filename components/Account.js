@@ -17,15 +17,6 @@ export default function Account({setIsLoading, openEventsModal, onAuth}) {
 
   const profilePicture = user ?. attributes.profile_picture;
 
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     const auth = async () => {
-  //       await onAuth();
-  //     };
-  //     auth();
-  //   }
-  // }, []);
-
   useEffect(() => {
     if (isAuthenticated) {
       const loadEmail = async () => {
@@ -35,7 +26,7 @@ export default function Account({setIsLoading, openEventsModal, onAuth}) {
             chainConfig: {
               chainNamespace: 'eip155',
               chainId: "0x61",
-              rpcTarget: 'https://data-seed-prebsc-1-s3.binance.org:8545',
+              rpcTarget: 'https://bsctestapi.terminet.io/rpc',
               displayName: "Binance testnet",
               blockExplorer: 'https://testnet.bscscan.com',
               ticker: 'BNB',
