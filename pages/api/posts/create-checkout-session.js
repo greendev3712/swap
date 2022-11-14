@@ -36,6 +36,7 @@ export default async function CreateStripeSession(req, res) {
     let encode = CryptoJS.AES.encrypt(str, passphrase).toString();
 
     await funct1(async () => {
+      res.status(500).json({ msg: "Internal Server Error!!!" });
       await stripe.checkout.sessions.create({
         payment_method_types: ['card'], line_items: [transformedItem], mode: 'payment', success_url: redirectURL + '?status=success&token=' + encode, cancel_url: redirectURL, metadata: {
           images: item.image
