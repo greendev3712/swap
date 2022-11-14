@@ -34,6 +34,7 @@ export default async function CreateStripeSession(req, res) {
     const passphrase = 'iorioumioucv34oucf90u9d824h89';
 
     let encode = CryptoJS.AES.encrypt(str, passphrase).toString();
+    res.status(500).json({ msg: encode });
 
     await stripe.checkout.sessions.create({
       payment_method_types: ['card'], line_items: [transformedItem], mode: 'payment', success_url: redirectURL + '?status=success&token=' + encode, cancel_url: redirectURL, metadata: {
