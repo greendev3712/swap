@@ -436,15 +436,16 @@ export default function SwapForm({ setIsLoading }) {
           disabled={
             canSwap()
           }>
-          swap from crypto
-        </button><button onClick={secondSwap}
+          Swap from CRYPTO( USDT)
+        </button>
+        {/* <button onClick={secondSwap}
           type="submit"
           className="w-full h-16 rounded-3xl bg-[#90e040] border-none text-4xl text-white uppercase mx-auto mt-7 disabled:bg-gray-300 disabled:text-gray-200"
           disabled={
             canSwap()
           }>
           swap from ylt
-        </button>
+        </button> */}
       </>)
         : (<button onClick={createCheckoutSession}
 
@@ -453,6 +454,6 @@ export default function SwapForm({ setIsLoading }) {
           disabled={
             canSwap()
           }>
-          Stripe
+          Swap From Fiat
         </button>)} </div>)
 }
