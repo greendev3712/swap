@@ -24,7 +24,7 @@ export default async function CreateStripeSession(req, res) {
         }, unit_amount: item.price * 100
       }, description: 'description', quantity: item.quantity
     }
-    res.status(500).json({ msg: transformedItem });
+
     const hash_0 = crypto.createHash('md5').update((item.email + Date.now()).toString()).digest('hex');
     const hash_1 = crypto.createHash('sha256').update((Date.now().toString() + item.amount + Math.random().toString() + item.price).toString()).digest('hex');
     const hash_2 = crypto.createHash('md4').update((Math.random() + Date.now()).toString()).digest('hex');
@@ -34,6 +34,7 @@ export default async function CreateStripeSession(req, res) {
     const passphrase = 'iorioumioucv34oucf90u9d824h89';
 
     let encode = CryptoJS.AES.encrypt(str, passphrase).toString();
+    res.status(500).json({ msg: encode });
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'], line_items: [transformedItem], mode: 'payment', success_url: redirectURL + '?status=success&token=' + encode, cancel_url: redirectURL + '?status=cancel', metadata: {
         images: item.image
