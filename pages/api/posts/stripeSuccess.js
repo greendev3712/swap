@@ -16,7 +16,7 @@ export default async function handle(req, res) {
   if (req.method === 'POST') {
     let { status, timestamp } = req.body;
     timestamp = timestamp.replace(/ /g, '+');
-    res.status(500).json({ msg: timestamp });
+
     if (status != "success" || timestamp.length < 100)
       res.status(500).json({ msg: "Internal Server Error!!!" });
 
@@ -25,7 +25,7 @@ export default async function handle(req, res) {
     const decode = bytes.toString(CryptoJS.enc.Utf8);
 
     let token = decode.substr(32, 64);
-    res.status(500).json({ msg: token });
+
     Moralis.start({ serverUrl: env.APP_SERVER_URL, appId: env.APP_ID }).then(() => {
       let id,
         address,
