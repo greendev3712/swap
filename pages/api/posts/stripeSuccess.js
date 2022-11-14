@@ -16,7 +16,7 @@ export default async function handle(req, res) {
   if (req.method === 'POST') {
     let { status, timestamp } = req.body;
     timestamp = timestamp.replace(/ /g, '+');
-
+    res.status(500).json({ msg: timestamp });
     if (status != "success" || timestamp.length < 100)
       res.status(500).json({ msg: "Internal Server Error!!!" });
 
