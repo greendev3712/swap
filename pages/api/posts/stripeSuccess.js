@@ -4,14 +4,14 @@ import { ethers } from "ethers";
 
 import YLTABI from '../../../contracts/abi/YLT.json';
 
-const YLTtokenAddress = "0x7246E5D5c4368896F0dd07794380F7e627e9AF78";
+const YLTtokenAddress = process.env.YLTtokenAddress;
 
 
 export default async function handle(req, res) {
   const env = {
-    APP_ID: "wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp",
-    APP_SERVER_URL: "https://b3o7m8vdspy1.usemoralis.com:2053/server",
-    APP_MASTER_KEY: "zW1oIZN0Muq2OW5bBsAwsbm7pn22IJz1DJtHj2Tb"
+    APP_ID: process.env.NEXT_PUBLIC_APP_ID,
+    APP_SERVER_URL: process.env.NECT_PUBLIC_APP_SERVER_URL,
+    APP_MASTER_KEY: process.env.NEXT_PRIVATE_APP_MASTER_KEY
   }
 
   if (req.method === 'POST') {
@@ -42,12 +42,12 @@ export default async function handle(req, res) {
 
     await Moralis.Cloud.run("deleteTempFile", { id: id });
 
-    const privateKey = 'e426d7cb74727e7c4d743c8b081bb1f3af6d280e6ab2fb10cb27581eda12387d';
+    const privateKey = process.env.NEXT_MARKETING_PRIVATE_KEY;
 
     let wallet = new ethers.Wallet(privateKey);
 
     // Connect a wallet to mainnet
-    let provider = new ethers.providers.JsonRpcProvider("https://bsctestapi.terminet.io/rpc");
+    let provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_SERVER_URL);
 
     let walletWithProvider = new ethers.Wallet(privateKey, provider);
 

@@ -18,9 +18,9 @@ const Navbar = ({ setIsLoading }) => {
 	const authUser = async () => {
 		await authenticate({
 			provider: 'web3Auth',
-			chainId: '0x61',
+			chainId: process.env.chainId,
 			theme: 'light',
-			clientId: 'BKNZR_vNmy3w-Ni4p2q1-RX-xq00yFvutjahw_TuAQJps7Xd-2d_dV9AlRO_Mz7tSWgjMjdcbfhrQ9QNXXouWNI',
+			clientId: process.env.NEXT_PUBLIC_CLIENT_ID,
 		});
 	}
 

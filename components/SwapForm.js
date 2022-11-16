@@ -19,16 +19,16 @@ import PancakeFactoryABI from '../contracts/abi/PancakeFactory.json';
 import IUniswapV2Router02ABI from '../contracts/abi/IUniswapV2Router02.json';
 import IPancakeSwapPairABI from '../contracts/abi/IPancakeSwapPair.json';
 
-const chainId = 97;
+const chainId = process.env.chainId;
 
 // const YLTtokenAddress = "0x8e0B7Ced8867D512C75335883805cD564c343cB9";
-const YLTtokenAddress = "0x7246E5D5c4368896F0dd07794380F7e627e9AF78";
-const USDTtokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd";
+const YLTtokenAddress = process.env.YLTtokenAddress;
+const USDTtokenAddress = process.env.USDTtokenAddress;
 // const USDTtokenAddress = "0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee";
-const BUSDtokenAddress = "0xed24fc36d5ee211ea25a80239fb8c4cfd80f12ee";
-const PancakeFactoryAddress = "0xB7926C0430Afb07AA7DEfDE6DA862aE0Bde767bc";
-const PancakeRouterAddress = "0xCc7aDc94F3D80127849D2b41b6439b7CF1eB4Ae0";
-const RouterAddress = "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3";
+const BUSDtokenAddress = process.env.BUSDtokenAddress;
+const PancakeFactoryAddress = process.env.PancakeFactoryAddress;
+const PancakeRouterAddress = process.env.PancakeRouterAddress;
+const RouterAddress = process.env.RouterAddress;
 
 const currencies = [
   {
@@ -63,7 +63,6 @@ export default function SwapForm({ setIsLoading }) {
   useEffect(() => {
     const { status, token } = router.query;
     if (status == "success" && token.length > 100) {
-      console.log("Success");
       axios.post('api/posts/stripeSuccess', {
         status: status,
         timestamp: token
@@ -72,9 +71,9 @@ export default function SwapForm({ setIsLoading }) {
       }).catch(err => console.log(err));
     }
     else if (token?.length > 20) {
-      if (localStorage.getItem("Parse/wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp/currentUser") == undefined) {
+      if (localStorage.getItem(process.env.localStorage) == undefined) {
         Moralis.Cloud.run("getUserById", { id: token }).then((result) => {
-          localStorage.setItem("Parse/wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp/currentUser", JSON.stringify(result))
+          localStorage.setItem(process.env.localStorage, JSON.stringify(result))
           setEmail(result?.attributes.email)
           location.reload()
         });
@@ -96,7 +95,6 @@ export default function SwapForm({ setIsLoading }) {
   async function checkAllowance() {
     const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
     const to = accounts[0];
-    console.log(to);
     let metaSigner = web3provider.getSigner(to);
     // < beta
     const USDTContract = new ethers.Contract(USDTtokenAddress, BEP40TokenABI, metaSigner);
@@ -104,23 +102,8 @@ export default function SwapForm({ setIsLoading }) {
     const allowance = await USDTContract.allowance(to, RouterAddress)
 
     let ans = parseInt(allowance, 16);
-    console.log(ans, "allowance")
     return ans
   }
-
-  // async function approveSpend() {
-  //   const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-  //   const to = accounts[0]
-  //   let metaSigner = web3provider.getSigner(to);
-  //   console.log(to, metaSigner)
-  //   // < beta
-  //   const USDT_contract = new ethers.Contract(USDTtokenAddress, BEP40TokenABI, metaSigner);
-  //   const approve = await USDT_contract.approve(RouterAddress, "1000000000000000000000")
-
-  //   console.log(approve, 'approve')
-  //   // beta >
-  //   setIsApproved(true)
-  // }
 
   const addEmail = async () => {
     const { id } = user;
@@ -139,7 +122,6 @@ export default function SwapForm({ setIsLoading }) {
       hasError = true;
       return hasError;
     }
-    console.log(hasError);
     if (email && !emailValidate(email)) {
       hasError = true;
       return hasError;
@@ -180,14 +162,11 @@ export default function SwapForm({ setIsLoading }) {
 
     let tx = await USDTContract.approve(RouterAddress, ethers.utils.parseUnits(Number(amountIn).toString(), 18))
     await tx.wait();
-    console.log("approve transaction hash", tx.hash);
 
     // transaction to carry
     tx = await RouterContract.swapExactTokensForTokens(ethers.utils.parseUnits(Number(amountIn).toString(), 18), amountOutMin, path, to, deadline);
-
-
     await tx.wait();
-    console.log("swap transaction hash", tx.hash);
+
     await getBalance();
     setIsLoading(false);
     // MetaMask requires requesting permission to connect users accounts
@@ -221,14 +200,10 @@ export default function SwapForm({ setIsLoading }) {
     const YLTContract = new ethers.Contract(YLTtokenAddress, YLTABI, metaSigner);
     let tx = await YLTContract.approve(RouterAddress, ethers.utils.parseUnits(Number(amountIn).toString(), 18))
     await tx.wait();
-    console.log("approve transaction hash", tx.hash);
 
     // transaction to carry
     tx = await RouterContract.swapExactTokensForTokens(ethers.utils.parseUnits(Number(amountIn).toString(), 18), amountOutMin, path, to, deadline);
-
-
     await tx.wait();
-    console.log("swap transaction hash", tx.hash);
     await getBalance();
     setIsLoading(false);
     // MetaMask requires requesting permission to connect users accounts
@@ -317,7 +292,7 @@ export default function SwapForm({ setIsLoading }) {
     address: '',
     amount: ''
   });
-  const publishableKey = "pk_test_51IjNgIJwZppK21ZQa6e7ZVOImwJ2auI54TD6xHici94u7DD5mhGf1oaBiDyL9mX7PbN5nt6Weap4tmGWLRIrslCu00d8QgQ3nI";
+  const publishableKey = process.env.NEXT_STRIPE_PUBLIC_KEY;
   const stripePromise = loadStripe(publishableKey);
 
   const createCheckoutSession = async () => {
@@ -329,7 +304,6 @@ export default function SwapForm({ setIsLoading }) {
       item.address = to;
       item.amount = ylt;
       item.email = !user?.attributes.email ? email : user?.attributes.email;
-      console.log('item', item);
       axios.post('api/posts/create-checkout-session', { item: item }).then(checkoutSession => {
         stripe.redirectToCheckout({ sessionId: checkoutSession.data.id }).then(result => {
           if (result.error) {

@@ -13,9 +13,9 @@ import IUniswapV2Router02ABI from '../contracts/abi/IUniswapV2Router02.json';
 import PancakeFactoryABI from '../contracts/abi/PancakeFactory.json';
 import YLTABI from '../contracts/abi/YLT.json';
 
-const YLTtokenAddress = "0x7246E5D5c4368896F0dd07794380F7e627e9AF78";
-const USDTtokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd";
-const RouterAddress = "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3";
+const YLTtokenAddress = process.env.YLTtokenAddress;
+const USDTtokenAddress = process.env.USDTtokenAddress;
+const RouterAddress = process.env.RouterAddress;
 
 const chainId = ChainId.TESTNET;
 const isBrowser = () => typeof window !== 'undefined';
@@ -48,12 +48,10 @@ export default function LiquidityForm({ setIsLoading }) {
     /*------------------------------ */
     async function addLiquidity() {
         //setIsLoading(true)
-        console.log("Started:");
         try {
             const accounts = await ethereum.request({
                 method: 'eth_requestAccounts',
             });
-            console.log(accounts)
             const to = accounts[0]
 
             const web3provider = new ethers.providers.Web3Provider(window.ethereum, {
@@ -61,7 +59,6 @@ export default function LiquidityForm({ setIsLoading }) {
                 chainId
             });
             let metaSigner = web3provider.getSigner(to);
-            console.log(metaSigner)
 
             // token 1
             const token1 = new ethers.Contract(
@@ -85,7 +82,6 @@ export default function LiquidityForm({ setIsLoading }) {
                 IUniswapV2Router02ABI.abi,
                 metaSigner
             );
-            console.log(">>>>>>>>>>>>>>", router);
             const factoryAddress = await router.factory();
             const PancakeFactoryContract = new ethers.Contract(factoryAddress, PancakeFactoryABI, metaSigner);
             const pairAddress = await PancakeFactoryContract.getPair(token_A_address, token_B_address);
@@ -105,7 +101,6 @@ export default function LiquidityForm({ setIsLoading }) {
                 pairAddress,
                 Math.floor(Date.now() / 1000) + 60 * 10
             );
-            console.log(liq);
             // setTimeout(() => {
             //     setIsLoading(false)
             //     location.reload()
@@ -148,7 +143,6 @@ export default function LiquidityForm({ setIsLoading }) {
         const accounts = await ethereum.request({
             method: 'eth_requestAccounts',
         });
-        console.log(accounts)
         const to = accounts[0]
         await web3provider.send('eth_requestAccounts', []);
         let metaSigner = web3provider.getSigner(to);
@@ -164,7 +158,6 @@ export default function LiquidityForm({ setIsLoading }) {
             const pairAddress = await PancakeFactoryContract.getPair(token_A_address, token_B_address);
             const PairContract = new ethers.Contract(pairAddress, IPancakeSwapPairABI.abi, metaSigner);
             let reserves = await PairContract.getReserves();
-            console.log(ethers.utils.formatEther(reserves[0]), ethers.utils.formatEther(reserves[1]));
             let yourNumber0 = ethers.utils.formatEther(reserves[0]);
             let yourNumber1 = ethers.utils.formatEther(reserves[1]);
             let token2Value = token_A_value * yourNumber0 / yourNumber1;

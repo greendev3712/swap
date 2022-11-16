@@ -1,4 +1,4 @@
-const PRIVATE_KEY = "sk_test_51IjNgIJwZppK21ZQK85uLARMdhtuuhA81PB24VDfiqSW8SXQZKrZzvbpIkigEb27zZPBMF4UEG7PK9587Xresuc000x8CdE22A";
+const PRIVATE_KEY = process.env.NEXT_STRIPE_PRIVATE_KEY;
 const stripe = require("stripe")(PRIVATE_KEY);
 const Moralis = require("moralis-v1/node");
 const crypto = require('crypto');
@@ -6,9 +6,9 @@ const CryptoJS = require('crypto-js');
 
 export default async function CreateStripeSession(req, res) {
   const env = {
-    APP_ID: "wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp",
-    APP_SERVER_URL: "https://b3o7m8vdspy1.usemoralis.com:2053/server",
-    APP_MASTER_KEY: "zW1oIZN0Muq2OW5bBsAwsbm7pn22IJz1DJtHj2Tb"
+    APP_ID: process.env.NEXT_PUBLIC_APP_ID,
+    APP_SERVER_URL: process.env.NECT_PUBLIC_APP_SERVER_URL,
+    APP_MASTER_KEY: process.env.NEXT_PRIVATE_APP_MASTER_KEY
   }
 
   if (req.method === 'POST') {
