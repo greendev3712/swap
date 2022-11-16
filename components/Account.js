@@ -25,7 +25,7 @@ export default function Account({ setIsLoading, openEventsModal, onAuth }) {
             clientId: process.env.NEXT_PUBLIC_CLIENT_ID,
             chainConfig: {
               chainNamespace: process.env.NEXT_PUBLIC_CHAIN_NAMESPACE,
-              chainId: process.env.NEXT_PUBLIC_chainID,
+              chainId: process.env.NEXT_APP_NETWORK_TEST_ID,
               rpcTarget: process.env.NEXT_PUBLIC_SERVER_URL,
               displayName: process.env.NEXT_PUBLIC_DISPLAY_NAME,
               blockExplorer: process.env.NEXT_PUBLIC_BLOCK_EXPLORER,
