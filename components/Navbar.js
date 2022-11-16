@@ -17,9 +17,9 @@ const Navbar = ({ setIsLoading }) => {
 
 	const authUser = async () => {
 		await authenticate({
-			provider: 'web3Auth',
-			chainId: process.env.NEXT_APP_NETWORK_TEST_ID,
-			theme: 'light',
+			provider: process.env.NEXT_PUBLIC_WEB3AUTH_PROVIDER,
+			chainId: process.env.NEXT_PUBLIC_CHAIN_ID,
+			theme: process.env.NEXT_PUBLIC_THEME,
 			clientId: process.env.NEXT_PUBLIC_CLIENT_ID,
 		});
 	}

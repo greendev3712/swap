@@ -19,7 +19,7 @@ import PancakeFactoryABI from '../contracts/abi/PancakeFactory.json';
 import IUniswapV2Router02ABI from '../contracts/abi/IUniswapV2Router02.json';
 import IPancakeSwapPairABI from '../contracts/abi/IPancakeSwapPair.json';
 
-const chainId = process.env.NEXT_APP_NETWORK_TEST_ID;
+const chainId = Number(process.env.NEXT_APP_NETWORK_TEST_ID);
 
 // const YLTtokenAddress = "0x8e0B7Ced8867D512C75335883805cD564c343cB9";
 const YLTtokenAddress = process.env.NEXT_PUBLIC_YLTtokenAddress;
