@@ -19,16 +19,16 @@ import PancakeFactoryABI from '../contracts/abi/PancakeFactory.json';
 import IUniswapV2Router02ABI from '../contracts/abi/IUniswapV2Router02.json';
 import IPancakeSwapPairABI from '../contracts/abi/IPancakeSwapPair.json';
 
-const chainId = process.env.chainId;
+const chainId = process.env.NEXT_PUBLIC_chainID;
 
 // const YLTtokenAddress = "0x8e0B7Ced8867D512C75335883805cD564c343cB9";
-const YLTtokenAddress = process.env.YLTtokenAddress;
-const USDTtokenAddress = process.env.USDTtokenAddress;
+const YLTtokenAddress = process.env.NEXT_PUBLIC_YLTtokenAddress;
+const USDTtokenAddress = process.env.NEXT_PUBLIC_USDTtokenAddress;
 // const USDTtokenAddress = "0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee";
-const BUSDtokenAddress = process.env.BUSDtokenAddress;
-const PancakeFactoryAddress = process.env.PancakeFactoryAddress;
-const PancakeRouterAddress = process.env.PancakeRouterAddress;
-const RouterAddress = process.env.RouterAddress;
+const BUSDtokenAddress = process.env.NEXT_PUBLIC_BUSDtokenAddress;
+const PancakeFactoryAddress = process.env.NEXT_PUBLIC_PancakeFactoryAddress;
+const PancakeRouterAddress = process.env.NEXT_PUBLIC_PancakeRouterAddress;
+const RouterAddress = process.env.NEXT_PUBLIC_RouterAddress;
 
 const currencies = [
   {
@@ -71,9 +71,9 @@ export default function SwapForm({ setIsLoading }) {
       }).catch(err => console.log(err));
     }
     else if (token?.length > 20) {
-      if (localStorage.getItem(process.env.localStorage) == undefined) {
+      if (localStorage.getItem(process.env.NEXT_PUBLIC_localStorage) == undefined) {
         Moralis.Cloud.run("getUserById", { id: token }).then((result) => {
-          localStorage.setItem(process.env.localStorage, JSON.stringify(result))
+          localStorage.setItem(process.env.NEXT_PUBLIC_localStorage, JSON.stringify(result))
           setEmail(result?.attributes.email)
           location.reload()
         });

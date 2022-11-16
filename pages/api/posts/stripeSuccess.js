@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 
 import YLTABI from '../../../contracts/abi/YLT.json';
 
-const YLTtokenAddress = process.env.YLTtokenAddress;
+const YLTtokenAddress = process.env.NEXT_PUBLIC_YLTtokenAddress;
 
 
 export default async function handle(req, res) {

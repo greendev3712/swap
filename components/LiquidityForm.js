@@ -13,9 +13,9 @@ import IUniswapV2Router02ABI from '../contracts/abi/IUniswapV2Router02.json';
 import PancakeFactoryABI from '../contracts/abi/PancakeFactory.json';
 import YLTABI from '../contracts/abi/YLT.json';
 
-const YLTtokenAddress = process.env.YLTtokenAddress;
-const USDTtokenAddress = process.env.USDTtokenAddress;
-const RouterAddress = process.env.RouterAddress;
+const YLTtokenAddress = process.env.NEXT_PUBLIC_YLTtokenAddress;
+const USDTtokenAddress = process.env.NEXT_PUBLIC_USDTtokenAddress;
+const RouterAddress = process.env.NEXT_PUBLIC_RouterAddress;
 
 const chainId = ChainId.TESTNET;
 const isBrowser = () => typeof window !== 'undefined';
