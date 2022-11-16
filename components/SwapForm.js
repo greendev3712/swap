@@ -13,18 +13,12 @@ import USDLogo from '../assets/usd.png'
 import Logo from '../assets/Logoemblem.svg';
 
 import BEP40TokenABI from '../contracts/abi/BEP40Token.json';
-// import BEP40TokenABI from '../contracts/abi/BUSDImplementation.json';
 import YLTABI from '../contracts/abi/YLT.json';
-import PancakeFactoryABI from '../contracts/abi/PancakeFactory.json';
 import IUniswapV2Router02ABI from '../contracts/abi/IUniswapV2Router02.json';
-import IPancakeSwapPairABI from '../contracts/abi/IPancakeSwapPair.json';
 
-const chainId = Number(process.env.NEXT_APP_NETWORK_TEST_ID);
-
-// const YLTtokenAddress = "0x8e0B7Ced8867D512C75335883805cD564c343cB9";
+const chainId = process.env.NEXT_PUBLIC_NETWORK_TEST_ID;
 const YLTtokenAddress = process.env.NEXT_PUBLIC_YLTtokenAddress;
 const USDTtokenAddress = process.env.NEXT_PUBLIC_USDTtokenAddress;
-// const USDTtokenAddress = "0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee";
 const BUSDtokenAddress = process.env.NEXT_PUBLIC_BUSDtokenAddress;
 const PancakeFactoryAddress = process.env.NEXT_PUBLIC_PancakeFactoryAddress;
 const PancakeRouterAddress = process.env.NEXT_PUBLIC_PancakeRouterAddress;
@@ -86,9 +80,11 @@ export default function SwapForm({ setIsLoading }) {
   let web3provider;
 
   if (isBrowser()) {
+    console.log(process.env.NEXT_PUBLIC_NETWORK_TEST_ID)
+    console.log(Number(chainId))
     web3provider = new ethers.providers.Web3Provider(window.ethereum, {
       name: 'binance',
-      chainId
+      chainId: Number(chainId)
     })
   }
 
@@ -138,7 +134,7 @@ export default function SwapForm({ setIsLoading }) {
   async function initSwap() {
     const web3provider = new ethers.providers.Web3Provider(window.ethereum, {
       name: "binance",
-      chainId
+      chainId: Number(chainId)
     });
 
     setIsLoading(true);
@@ -177,7 +173,7 @@ export default function SwapForm({ setIsLoading }) {
   async function secondSwap() {
     const web3provider = new ethers.providers.Web3Provider(window.ethereum, {
       name: "binance",
-      chainId
+      chainId: Number(chainId)
     });
 
     setIsLoading(true);
@@ -292,7 +288,7 @@ export default function SwapForm({ setIsLoading }) {
     address: '',
     amount: ''
   });
-  const publishableKey = process.env.NEXT_STRIPE_PUBLIC_KEY;
+  const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
   const stripePromise = loadStripe(publishableKey);
 
   const createCheckoutSession = async () => {

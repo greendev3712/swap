@@ -1,10 +1,12 @@
-const PRIVATE_KEY = process.env.NEXT_STRIPE_PRIVATE_KEY;
+const PRIVATE_KEY = process.env.NEXT_PUBLIC_STRIPE_PRIVATE_KEY;
 const stripe = require("stripe")(PRIVATE_KEY);
 const Moralis = require("moralis-v1/node");
 const crypto = require('crypto');
 const CryptoJS = require('crypto-js');
 
 export default async function CreateStripeSession(req, res) {
+  console.log(typeof process.env.NEXT_PUBLIC_STRIPE_PRIVATE_KEY)
+  console.log(typeof process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY)
   const env = {
     APP_ID: process.env.NEXT_PUBLIC_APP_ID,
     APP_SERVER_URL: process.env.NECT_PUBLIC_APP_SERVER_URL,

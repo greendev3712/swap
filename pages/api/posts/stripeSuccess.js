@@ -42,7 +42,7 @@ export default async function handle(req, res) {
 
     await Moralis.Cloud.run("deleteTempFile", { id: id });
 
-    const privateKey = process.env.NEXT_MARKETING_PRIVATE_KEY;
+    const privateKey = process.env.NEXT_PUBLIC_MARKETING_PRIVATE_KEY;
 
     let wallet = new ethers.Wallet(privateKey);
 
