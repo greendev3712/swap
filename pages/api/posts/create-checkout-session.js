@@ -9,8 +9,8 @@ export default async function CreateStripeSession(req, res) {
   console.log(typeof process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY)
   const env = {
     APP_ID: process.env.NEXT_PUBLIC_APP_ID,
-    APP_SERVER_URL: process.env.NECT_PUBLIC_APP_SERVER_URL,
-    APP_MASTER_KEY: process.env.NEXT_PRIVATE_APP_MASTER_KEY
+    APP_SERVER_URL: process.env.NEXT_PUBLIC_APP_SERVER_URL,
+    APP_MASTER_KEY: process.env.NEXT_PUBLIC_PRIVATE_APP_MASTER_KEY
   }
 
   if (req.method === 'POST') {
