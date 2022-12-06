@@ -1,6 +1,4 @@
-import Link from 'next/link';
 import Logo from '../assets/FullLogo.svg';
-import LINKS from '../constants/menu';
 
 export default function Footer() {
     return (

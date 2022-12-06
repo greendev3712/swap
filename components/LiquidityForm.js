@@ -3,7 +3,6 @@ import "react-dropdown/style.css";
 import WAValidator from "multicoin-address-validator";
 import { useMoralis } from "react-moralis";
 import Logo from "../assets/Logoemblem.svg"
-import { ChainId } from "pancakeswap-v2-testnet-sdk";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
 
@@ -17,17 +16,7 @@ const YLTtokenAddress = process.env.NEXT_PUBLIC_YLTtokenAddress;
 const USDTtokenAddress = process.env.NEXT_PUBLIC_USDTtokenAddress;
 const RouterAddress = process.env.NEXT_PUBLIC_RouterAddress;
 
-const chainId = ChainId.TESTNET;
-const isBrowser = () => typeof window !== 'undefined';
-
-let web3provider;
-
-if (isBrowser()) {
-    web3provider = new ethers.providers.Web3Provider(window.ethereum, {
-        name: 'binance',
-        chainId
-    })
-}
+const chainId = process.env.NEXT_PUBLIC_CHAIN_ID;
 
 export default function LiquidityForm({ setIsLoading }) {
     const validateClassNameRef = useRef('');
@@ -37,8 +26,20 @@ export default function LiquidityForm({ setIsLoading }) {
     const [token_A_address, setToken_A_address] = useState(YLTtokenAddress)
     const [token_B_address, setToken_B_address] = useState(USDTtokenAddress);
     const [YLT_balance, setYltBalance] = useState(0.0);
-
+    const chainNetworkId = useRef(0)
+    const isBrowser = () => typeof window !== 'undefined';
     const { user, isAuthenticated } = useMoralis();
+
+    useEffect(() => {
+        if (!isBrowser()) return;
+        if (isBrowser()) init();
+      }, [chainNetworkId.current])
+    
+    const init = async () => {
+    const web3provider = new ethers.providers.Web3Provider(window.ethereum)
+    const { chainId } = await web3provider.getNetwork()
+    chainNetworkId.current = chainId
+    }
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -47,6 +48,9 @@ export default function LiquidityForm({ setIsLoading }) {
     }, [isAuthenticated]);
     /*------------------------------ */
     async function addLiquidity() {
+        if (!isBrowser()) return;
+        if (chainNetworkId.current != process.env.NEXT_PUBLIC_CHAIN_ID) return;
+
         //setIsLoading(true)
         try {
             const accounts = await ethereum.request({
@@ -101,24 +105,15 @@ export default function LiquidityForm({ setIsLoading }) {
                 pairAddress,
                 Math.floor(Date.now() / 1000) + 60 * 10
             );
-            // setTimeout(() => {
-            //     setIsLoading(false)
-            //     location.reload()
-            // }, 1000)
+
         } catch (err) {
-            console.log(">>>>>>>>>>>>>>>", err)
+            console.log(err)
         }
     }
 
-    // ----
-    const isTransactionMined = async (transactionHash) => {
-        const txReceipt = await web3provider.getTransactionReceipt(transactionHash);
-        if (txReceipt && txReceipt.blockNumber) {
-            return txReceipt;
-        }
-    }
-    // --------------------------------
     useEffect(() => {
+        if (isBrowser()) init();
+        
         const fetchPariAsync = async () => {
             await fetchPair();
             await getBalance();
@@ -127,9 +122,16 @@ export default function LiquidityForm({ setIsLoading }) {
             fetchPariAsync();
             getBalance();
         }
-    }, [token_A_value])
+    }, [token_A_value, chainNetworkId.current])
 
     const getBalance = async () => {
+        if (chainNetworkId.current != process.env.NEXT_PUBLIC_CHAIN_ID) return;
+        
+        const web3provider = new ethers.providers.Web3Provider(window.ethereum, {
+            name: "binance",
+            chainId: Number(chainId)
+        });
+
         const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
 
         const YLTContract = new ethers.Contract(YLTtokenAddress, YLTABI, web3provider);
@@ -140,10 +142,18 @@ export default function LiquidityForm({ setIsLoading }) {
     };
 
     async function fetchPair() {
+        if (chainNetworkId.current != process.env.NEXT_PUBLIC_CHAIN_ID) return;
+
         const accounts = await ethereum.request({
             method: 'eth_requestAccounts',
         });
         const to = accounts[0]
+        
+        const web3provider = new ethers.providers.Web3Provider(window.ethereum, {
+            name: "binance",
+            chainId: Number(chainId)
+        });
+
         await web3provider.send('eth_requestAccounts', []);
         let metaSigner = web3provider.getSigner(to);
         // router 

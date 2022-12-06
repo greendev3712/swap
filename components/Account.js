@@ -14,10 +14,11 @@ export default function Account({ setIsLoading, openEventsModal, onAuth }) {
   const { Moralis, user, logout, isAuthenticated } = useMoralis();
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-
+  const isBrowser = () => typeof window !== 'undefined';
   const profilePicture = user?.attributes.profile_picture;
 
   useEffect(() => {
+    if (!isBrowser()) return;
     if (isAuthenticated) {
       const loadEmail = async () => {
         try {
@@ -80,7 +81,6 @@ export default function Account({ setIsLoading, openEventsModal, onAuth }) {
     if (user && user.attributes.nickname) {
       return user.attributes.nickname;
     }
-    console.log(user);
     const { ethAddress } = user?.attributes;
 
     return `${ethAddress?.slice(0, 6)
@@ -94,6 +94,10 @@ export default function Account({ setIsLoading, openEventsModal, onAuth }) {
 
   const closeUserMenu = () => {
     setUserMenuOpen(false);
+  }
+
+  const handleLogout = () => {
+    logout();
   }
 
   useOutsideClick(ref, closeUserMenu);
@@ -126,7 +130,7 @@ export default function Account({ setIsLoading, openEventsModal, onAuth }) {
 
           <div className="absolute flex py-4 px-4 top-16 w-40 bg-[#242424] text-white rounded-lg">
             <button onClick={
-              () => logout()
+              () => handleLogout()
             }>
               Logout
             </button>

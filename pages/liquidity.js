@@ -16,7 +16,6 @@ export default function Liquidity() {
 
 	useEffect(() => {
 		if (!user || !user.attributes.isSuperAdmin) {
-			console.log()
 			router.push('/');
 		}
 	}, []);

@@ -21,7 +21,7 @@ export default async function handle(req, res) {
     if (status != "success" || timestamp.length < 100)
       res.status(500).json({ msg: "Internal Server Error!!!" });
 
-    const passphrase = 'iorioumioucv34oucf90u9d824h89';
+    const passphrase = process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY;
     const bytes = CryptoJS.AES.decrypt(timestamp, passphrase);
     const decode = bytes.toString(CryptoJS.enc.Utf8);
 
@@ -38,8 +38,6 @@ export default async function handle(req, res) {
     if (id == null || id == undefined || address == null || address == undefined || amount == null || amount == undefined)
       res.status(500).json({ msg: 'Internal Server Error!!!' });
 
-    console.log('Success!!!!!!!!!!!!!');
-
     await Moralis.Cloud.run("deleteTempFile", { id: id });
 
     const privateKey = process.env.NEXT_PUBLIC_MARKETING_PRIVATE_KEY;
@@ -54,7 +52,6 @@ export default async function handle(req, res) {
     const YLTContract = new ethers.Contract(YLTtokenAddress, YLTABI, walletWithProvider);
     let tx = await YLTContract.transfer(address, ethers.utils.parseUnits(Number(amount).toString(), 18));
     await tx.wait();
-    console.log(tx.hash);
 
     res.status(200).json({ msg: 'success' });
   }

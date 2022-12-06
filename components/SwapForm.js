@@ -16,12 +16,10 @@ import BEP40TokenABI from '../contracts/abi/BEP40Token.json';
 import YLTABI from '../contracts/abi/YLT.json';
 import IUniswapV2Router02ABI from '../contracts/abi/IUniswapV2Router02.json';
 
-const chainId = process.env.NEXT_PUBLIC_NETWORK_TEST_ID;
+const chainId = process.env.NEXT_PUBLIC_CHAIN_ID;
 const YLTtokenAddress = process.env.NEXT_PUBLIC_YLTtokenAddress;
 const USDTtokenAddress = process.env.NEXT_PUBLIC_USDTtokenAddress;
 const BUSDtokenAddress = process.env.NEXT_PUBLIC_BUSDtokenAddress;
-const PancakeFactoryAddress = process.env.NEXT_PUBLIC_PancakeFactoryAddress;
-const PancakeRouterAddress = process.env.NEXT_PUBLIC_PancakeRouterAddress;
 const RouterAddress = process.env.NEXT_PUBLIC_RouterAddress;
 
 const currencies = [
@@ -46,22 +44,41 @@ export default function SwapForm({ setIsLoading }) {
   const [ylt, setYlt] = useState(0);
   const [yltBalance, setYltBalance] = useState(0);
   const [usdtBalance, setUsdtBalance] = useState(0);
-  const { user, isAuthenticated, Moralis, account } = useMoralis();
-
+  const chainNetworkId = useRef(0)
+  const { user, isAuthenticated, Moralis } = useMoralis();
+  const isBrowser = () => typeof window !== 'undefined';
   const router = useRouter();
 
-  // useEffect(() => {
-  //   checkAllowance().then(res => setIsApproved(!!res))
-  // }, [])
+  useEffect(() => {
+    if (!isBrowser()) return;
+    if (isBrowser()) init();
+  }, [chainNetworkId.current])
+
+  const init = async () => {
+    const web3provider = new ethers.providers.Web3Provider(window.ethereum)
+    const { chainId } = await web3provider.getNetwork()
+    chainNetworkId.current = chainId
+  }
 
   useEffect(() => {
-    const { status, token } = router.query;
-    if (status == "success" && token.length > 100) {
+    const { status, token, timestamp } = router.query;
+    if (status == "success" && token?.length > 100 && timestamp?.length > 20) {
       axios.post('api/posts/stripeSuccess', {
         status: status,
         timestamp: token
       }).then(res => {
-        setTimeout(() => { }, 10000);
+        setTimeout(() => {
+          if (timestamp?.length > 20) {
+            if (localStorage.getItem(process.env.NEXT_PUBLIC_localStorage) == undefined) {
+              Moralis.Cloud.run("getUserById", { id: timestamp }).then((result) => {
+                localStorage.setItem(process.env.NEXT_PUBLIC_localStorage, JSON.stringify(result))
+                setEmail(result?.attributes.email)
+                router.push('/')
+                location.reload()
+              });
+            }
+          }
+        }, 1000);
       }).catch(err => console.log(err));
     }
     else if (token?.length > 20) {
@@ -74,19 +91,6 @@ export default function SwapForm({ setIsLoading }) {
       }
     }
   }, [router.isReady])
-
-  const isBrowser = () => typeof window !== 'undefined';
-
-  let web3provider;
-
-  if (isBrowser()) {
-    console.log(process.env.NEXT_PUBLIC_NETWORK_TEST_ID)
-    console.log(Number(chainId))
-    web3provider = new ethers.providers.Web3Provider(window.ethereum, {
-      name: 'binance',
-      chainId: Number(chainId)
-    })
-  }
 
   async function checkAllowance() {
     const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
@@ -108,6 +112,18 @@ export default function SwapForm({ setIsLoading }) {
 
   const canSwap = () => {
     let hasError = false;
+    
+    if (selectedCurrency.id == 2 && usdAmount < 0.6)
+    {
+      hasError = true;
+      return hasError;
+    }
+
+    if (ylt <= 0 && usdAmount <= 0)
+    {
+      hasError = true;
+      return hasError;
+    }
 
     if (!ylt && !usdAmount) {
       hasError = true;
@@ -132,6 +148,8 @@ export default function SwapForm({ setIsLoading }) {
   };
 
   async function initSwap() {
+    if (chainNetworkId.current != process.env.NEXT_PUBLIC_CHAIN_ID) return;
+
     const web3provider = new ethers.providers.Web3Provider(window.ethereum, {
       name: "binance",
       chainId: Number(chainId)
@@ -143,8 +161,6 @@ export default function SwapForm({ setIsLoading }) {
     }
 
     const amountOutMin = 0;
-    // console.log(trade.executionPrice.toSignificant(6), "execution price")
-    // console.log(amountOutMin)
     const amountIn = usdAmount;
     const path = [USDTtokenAddress, YLTtokenAddress];
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
@@ -182,8 +198,6 @@ export default function SwapForm({ setIsLoading }) {
     }
 
     const amountOutMin = 0;
-    // console.log(trade.executionPrice.toSignificant(6), "execution price")
-    // console.log(amountOutMin)
     const amountIn = ylt;
     const path = [YLTtokenAddress, USDTtokenAddress];
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
@@ -210,12 +224,16 @@ export default function SwapForm({ setIsLoading }) {
 
   const changeRate = async () => {
     try {
+      if (!isBrowser()) return;
+      if (chainNetworkId.current != process.env.NEXT_PUBLIC_CHAIN_ID) return;
+
+      const web3provider = new ethers.providers.Web3Provider(window.ethereum, {
+        name: "binance",
+        chainId: Number(chainId)
+      });
       const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       const to = accounts[0]
       let metaSigner = web3provider.getSigner(to);
-
-      // let PancakeFactoryContract = new ethers.Contract(PancakeFactoryAddress, PancakeFactoryABI, metaSigner);
-      // const pairAddress = await PancakeFactoryContract.getPair(YLTtokenAddress, USDTtokenAddress);
 
       let routerContract = new ethers.Contract(RouterAddress, IUniswapV2Router02ABI.abi, metaSigner);
       let swapAmount = ethers.utils.parseUnits('1', 18);
@@ -251,10 +269,14 @@ export default function SwapForm({ setIsLoading }) {
   };
 
   const getBalance = async () => {
+    if (chainNetworkId.current != process.env.NEXT_PUBLIC_CHAIN_ID) return;
+
+    const web3provider = new ethers.providers.Web3Provider(window.ethereum, {
+      name: "binance",
+      chainId: Number(chainId)
+    });
 
     const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-    const to = accounts[0]
-    let metaSigner = web3provider.getSigner(to);
 
     const YLTContract = new ethers.Contract(YLTtokenAddress, YLTABI, web3provider);
     const balance = await YLTContract.balanceOf(accounts[0]);
@@ -266,32 +288,40 @@ export default function SwapForm({ setIsLoading }) {
   };
 
   useEffect(() => {
+    if (isBrowser()) init()
     const getBalanceAsync = async () => {
       await getBalance();
     }
     if (isAuthenticated) {
       getBalanceAsync();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, chainNetworkId.current]);
 
   useEffect(() => {
+    if (isBrowser()) init()
     changeRate();
-  }, []);
+  }, [chainNetworkId.current]);
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
   const [item, setItem] = useState({
     name: 'YL Token',
     description: 'Latest Apple AirPods.',
-    image: 'https://swap.yourlifegames.com/assets/LogoYLGWhite.png',
+    image: appUrl + '/assets/LogoYLGWhite.png',
     quantity: 1,
     price: 9,
     email: '',
     address: '',
-    amount: ''
+    amount: '',
+    token: ''
   });
   const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
   const stripePromise = loadStripe(publishableKey);
 
   const createCheckoutSession = async () => {
+    if (isBrowser()) init()
+    if (chainNetworkId.current != process.env.NEXT_PUBLIC_CHAIN_ID) return;
+    
     setIsLoading(true);
     const accounts = await ethereum.request({ method: "eth_requestAccounts" });
     const to = accounts[0];
@@ -300,6 +330,7 @@ export default function SwapForm({ setIsLoading }) {
       item.address = to;
       item.amount = ylt;
       item.email = !user?.attributes.email ? email : user?.attributes.email;
+      item.token = user?.id;
       axios.post('api/posts/create-checkout-session', { item: item }).then(checkoutSession => {
         stripe.redirectToCheckout({ sessionId: checkoutSession.data.id }).then(result => {
           if (result.error) {
@@ -313,7 +344,7 @@ export default function SwapForm({ setIsLoading }) {
 
     });
   }
-
+  
   return (<div className="sm:max-w-screen-sm sm:w-full bg-white relative mx-3 flex flex-col border-2 border-[#90e040] rounded-2xl pt-3 pb-5 px-2.5 my-10"> {/* Inner Container */}
     <div className="relative text-5xl flex flex-col mb-7">
       <div className="w-full relative">

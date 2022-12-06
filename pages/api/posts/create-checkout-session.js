@@ -5,8 +5,6 @@ const crypto = require('crypto');
 const CryptoJS = require('crypto-js');
 
 export default async function CreateStripeSession(req, res) {
-  console.log(typeof process.env.NEXT_PUBLIC_STRIPE_PRIVATE_KEY)
-  console.log(typeof process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY)
   const env = {
     APP_ID: process.env.NEXT_PUBLIC_APP_ID,
     APP_SERVER_URL: process.env.NEXT_PUBLIC_APP_SERVER_URL,
@@ -15,9 +13,12 @@ export default async function CreateStripeSession(req, res) {
 
   if (req.method === 'POST') {
     const { item } = req.body;
-    const redirectURL = "https://swap.yourlifegames.com";
+    const redirectURL = process.env.NEXT_PUBLIC_APP_URL;
     await Moralis?.start({ serverUrl: env.APP_SERVER_URL, appId: env.APP_ID, masterKey: env.APP_MASTER_KEY })
     if (item.address.length < 10 || item.email.length < 3 || item.price.length == 0 || item.amount <= 0)
+      res.status(500).json({ msg: "Internal Server Error!!!" });
+
+    if (item.token.length < 20)
       res.status(500).json({ msg: "Internal Server Error!!!" });
 
     const transformedItem = {
@@ -34,13 +35,15 @@ export default async function CreateStripeSession(req, res) {
 
     const str = hash_0 + hash_1 + hash_2;
 
-    const passphrase = 'iorioumioucv34oucf90u9d824h89';
+    const passphrase = process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY;
 
     let encode = CryptoJS.AES.encrypt(str, passphrase).toString();
 
     try {
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'], line_items: [transformedItem], mode: 'payment', success_url: redirectURL + '?status=success&token=' + encode, cancel_url: redirectURL + '?status=cancel', metadata: {
+        payment_method_types: ['card'], line_items: [transformedItem], mode: 'payment', 
+          success_url: redirectURL + '?status=success&token=' + encode + '&timestamp=' + item.token, 
+          cancel_url: redirectURL + '?status=cancel&token=' + item.token, metadata: {
           images: item.image
         }
       });

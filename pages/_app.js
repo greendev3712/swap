@@ -3,8 +3,8 @@ import { MoralisProvider } from "react-moralis";
 import Head from "next/head";
 import "antd/dist/antd.css";
 
-const APP_ID = "wi3vmn7KB9vehixK5lZ2vOuAfgbJzJNSjum3AkUp";
-const SERVER_URL = "https://b3o7m8vdspy1.usemoralis.com:2053/server";
+const APP_ID = process.env.NEXT_PUBLIC_APP_ID;
+const SERVER_URL = process.env.NEXT_PUBLIC_APP_SERVER_URL;
 
 function MyApp({ Component, pageProps }) {
 	return (
